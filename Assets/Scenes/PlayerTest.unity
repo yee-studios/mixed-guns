@@ -4275,7 +4275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashChargePrefab: {fileID: -6175681702462538833, guid: 8fc6399e07ffe014892f40cc77c4e047, type: 3}
-  offset: {x: 15, y: 0}
+  offset: {x: 35, y: 0}
   startPos: {x: 25, y: 25}
 --- !u!1 &256874671
 GameObject:
@@ -47986,7 +47986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 1
+  m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1280, y: 720}
