@@ -9,6 +9,7 @@ public class PlayerController : Singleton<PlayerController>
     #region cached components
     Rigidbody2D rb;
     PlayerInput input;
+    AudioSource audioSource;
     Vector2 lastMove = new Vector2(0,1);
     #endregion
 
@@ -17,6 +18,17 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
     [SerializeField] int maxDashes = 3;
+
+    [Header("Sounds")]
+    [SerializeField] AudioClip dashSound;
+    [SerializeField] AudioClip chargeSound;
+    [SerializeField] AudioClip shootSound;
+    [SerializeField] AudioClip cantDashSound;
+    [SerializeField] AudioSource movingAudio;
+    [SerializeField] AudioSource rotatingAudio;
+
+    [SerializeField] ParticleSystem fart;
+
     public int MaxDashes => maxDashes;
     [SerializeField] float dashReloadTime = 1f;
     [SerializeField] float currentDashReload = 0f;
@@ -27,25 +39,16 @@ public class PlayerController : Singleton<PlayerController>
         base.Awake();
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInput>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
-
-        if (availableDashes < maxDashes)
-        {
-            currentDashReload += Time.deltaTime;
-            if (currentDashReload >= dashReloadTime)
-            {
-                currentDashReload = 0f;
-                availableDashes++;
-            }
-        }
-        DashChargeUIController.Instance.UpdateUnits(availableDashes, currentDashReload);
-
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
         rb.AddForce(move * moveSpeed * Time.deltaTime);
         lastMove = move;
+        movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), 10f*Time.deltaTime);
+        movingAudio.pitch = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), Time.deltaTime);
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(
             new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
@@ -53,13 +56,47 @@ public class PlayerController : Singleton<PlayerController>
            transform.position.x - mousePos.x,
             mousePos.y - transform.position.y);
         float angleDeg = 180 / Mathf.PI * angleRad;
-        transform.rotation = Quaternion.Euler(0, 0, angleDeg);
+        Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
+        rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume, Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime);
+        transform.rotation = newRot;
 
-        if (availableDashes > 0 && input.actions["dash"].WasPressedThisFrame())
-        {
-            rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
-            availableDashes--;
+        HandleDashes();
+
+        if (input.actions["shoot"].WasPressedThisFrame()) {
+            audioSource.PlayOneShot(shootSound);
+            audioSource.pitch = Random.Range(.95f, 1.05f);
         }
     }
     #endregion
+
+    void HandleDashes()
+    {
+        if (availableDashes < maxDashes)
+        {
+            currentDashReload += Time.deltaTime;
+            if (currentDashReload >= dashReloadTime)
+            {
+                currentDashReload = 0f;
+                availableDashes++;
+                audioSource.pitch = 1f;
+                audioSource.PlayOneShot(chargeSound);
+            }
+        }
+        DashChargeUIController.Instance.UpdateUnits(availableDashes, currentDashReload/dashReloadTime);
+
+        if (!input.actions["dash"].WasPressedThisFrame())
+            return;
+
+        if (availableDashes <= 0)
+        {
+            audioSource.PlayOneShot(cantDashSound);
+            Instantiate(fart, transform.position, transform.rotation);
+            return;
+        }
+
+        audioSource.PlayOneShot(dashSound);
+        audioSource.pitch = Random.Range(1f, 1.2f);
+        rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
+        availableDashes--;
+    }
 }
