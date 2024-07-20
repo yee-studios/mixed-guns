@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChargeUIUnit : MonoBehaviour
 {
     [SerializeField] RectTransform background;
-    [SerializeField] RectTransform indicator;
+    [SerializeField] Image indicator;
 
-    public void UpdateIndicator(float i) => indicator.localScale = new Vector3(1, Mathf.Clamp01(i), 1);
+    public void UpdateIndicator(float i) => indicator.fillAmount = i;
 }
