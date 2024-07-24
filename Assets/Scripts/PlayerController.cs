@@ -29,6 +29,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [SerializeField] ParticleSystem fart;
 
+    [SerializeField] GunController gun;
+
     public int MaxDashes => maxDashes;
     [SerializeField] float dashReloadTime = 1f;
     [SerializeField] float currentDashReload = 0f;
@@ -63,8 +65,7 @@ public class PlayerController : Singleton<PlayerController>
         HandleDashes();
 
         if (input.actions["shoot"].WasPressedThisFrame()) {
-            audioSource.PlayOneShot(shootSound);
-            audioSource.pitch = Random.Range(.95f, 1.05f);
+            gun?.Shoot();
         }
     }
     #endregion

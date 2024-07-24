@@ -2,17 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class GunController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] AudioClip[] shootSounds;
+    [SerializeField] Transform tip;
+    [SerializeField] Bullet bulletPrefab;
+    [SerializeField] float bulletSpeed = 1000f;
+    AudioSource audioSource;
+
+    private void Awake()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Shoot()
     {
-        
+        audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
+        Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
+        b.speed = bulletSpeed;
     }
 }
