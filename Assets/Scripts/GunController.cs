@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(AudioSource))]
 public class GunController : MonoBehaviour
@@ -9,7 +11,16 @@ public class GunController : MonoBehaviour
     [SerializeField] Transform tip;
     [SerializeField] Bullet bulletPrefab;
     [SerializeField] float bulletSpeed = 1000f;
+    [SerializeField] FireMode fireMode = FireMode.Semi;
+    public bool triggerStatus = false;
     AudioSource audioSource;
+
+    [SerializeField] float fireRate = 0.25f;
+    [SerializeField] int burstAmount = 3;
+    int currentBurst = 0;
+
+    float nextFire = 0f;
+
 
     private void Awake()
     {
@@ -30,10 +41,40 @@ public class GunController : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, newRot, Time.deltaTime * 10f);
     }
 
-    public void Shoot()
+    public bool UpdateTrigger(bool triggerStatus)
     {
+        if (this.triggerStatus == triggerStatus) return false;
+        this.triggerStatus = triggerStatus;
+        if(triggerStatus && fireMode == FireMode.Semi) Shoot();
+        return true;
+    }
+
+    private void Update()
+    {
+        if (fireMode == FireMode.Semi
+            || !triggerStatus
+            || Time.time <= nextFire) return;
+        Shoot();
+    }
+
+    private void Shoot()
+    {
+        PlayerController.Instance.surroundingLight.pointLightOuterRadius += 1f;
         audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
         Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
         b.speed = bulletSpeed;
+        if(fireMode == FireMode.Burst)
+        {
+            currentBurst++;
+            if (currentBurst >= burstAmount)
+            {
+                nextFire = Time.time + (fireRate * burstAmount);
+                currentBurst = 0;
+                return;
+            }
+        }
+        nextFire = Time.time + fireRate;
     }
 }
+
+enum FireMode { Semi, Burst, Auto }

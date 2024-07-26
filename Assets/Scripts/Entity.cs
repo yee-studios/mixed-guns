@@ -6,7 +6,7 @@ public class Entity : MonoBehaviour
 {
     [SerializeField] SpriteMask mask;
     [SerializeField] HealthBar healthBar;
-    float health = 0f;
+    [SerializeField] float health = 0f;
     public float Health
     {
         get { return health; }

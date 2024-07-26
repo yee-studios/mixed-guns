@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : Singleton<PlayerController>
@@ -22,6 +24,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] int maxDashes = 3;
     [Range(0f,1f)]
     [SerializeField] float constantSoundVolume = 0.25f;
+    [SerializeField] float lightReductionRate = 0.25f;
 
     [Header("Sounds")]
     [SerializeField] AudioClip dashSound;
@@ -34,6 +37,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] ParticleSystem fart;
 
     [SerializeField] GunController gun;
+    public Light2D flashLight;
+    public Light2D surroundingLight;
 
     public int MaxDashes => maxDashes;
     [SerializeField] float dashReloadTime = 1f;
@@ -70,9 +75,14 @@ public class PlayerController : Singleton<PlayerController>
 
         HandleDashes();
 
-        if (input.actions["shoot"].WasPressedThisFrame()) {
-            gun?.Shoot();
+        if(gun != null)
+        {
+            bool trig = input.actions["shoot"].IsPressed();
+            if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
+
+        surroundingLight.pointLightOuterRadius = Mathf.Clamp(
+            surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), 1f, Mathf.Infinity);
     }
     #endregion
 
