@@ -18,6 +18,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
     [SerializeField] int maxDashes = 3;
+    [Range(0f,1f)]
+    [SerializeField] float constantSoundVolume = 0.25f;
 
     [Header("Sounds")]
     [SerializeField] AudioClip dashSound;
@@ -49,7 +51,7 @@ public class PlayerController : Singleton<PlayerController>
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
         rb.AddForce(move * moveSpeed * Time.deltaTime);
         lastMove = move;
-        movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), 10f*Time.deltaTime);
+        movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), 10f*Time.deltaTime) * constantSoundVolume;
         movingAudio.pitch = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), Time.deltaTime);
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(
@@ -59,7 +61,7 @@ public class PlayerController : Singleton<PlayerController>
             mousePos.y - transform.position.y);
         float angleDeg = 180 / Mathf.PI * angleRad;
         Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
-        rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume, Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime);
+        rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume, Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime) * constantSoundVolume;
         transform.rotation = newRot;
 
         HandleDashes();
@@ -96,7 +98,6 @@ public class PlayerController : Singleton<PlayerController>
         }
 
         audioSource.PlayOneShot(dashSound);
-        audioSource.pitch = Random.Range(1f, 1.2f);
         rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
         availableDashes--;
     }
