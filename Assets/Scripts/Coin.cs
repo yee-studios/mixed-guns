@@ -31,6 +31,7 @@ public class Coin : MonoBehaviour
         audioSource.Play();
         rb.constraints = RigidbodyConstraints2D.None;
         rb.AddForce(new Vector2(Random.Range(-r, r), Random.Range(-r, r))+Vector2.up*r, ForceMode2D.Impulse);
+        PlayerController.Instance.Entity.Health += Random.Range(5f, 15f);
         Destroy(gameObject, 5f);
     }
 }

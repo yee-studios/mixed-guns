@@ -10,6 +10,8 @@ public class PlayerController : Singleton<PlayerController>
     Rigidbody2D rb;
     PlayerInput input;
     AudioSource audioSource;
+    Entity entity;
+    public Entity Entity => entity;
     Vector2 lastMove = new Vector2(0,1);
     #endregion
 
@@ -44,6 +46,7 @@ public class PlayerController : Singleton<PlayerController>
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInput>();
         audioSource = GetComponent<AudioSource>();
+        entity = GetComponent<Entity>();
     }
 
     private void Update()
@@ -61,7 +64,8 @@ public class PlayerController : Singleton<PlayerController>
             mousePos.y - transform.position.y);
         float angleDeg = 180 / Mathf.PI * angleRad;
         Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
-        rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume, Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime) * constantSoundVolume;
+        rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume,
+            Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime) * constantSoundVolume;
         transform.rotation = newRot;
 
         HandleDashes();
