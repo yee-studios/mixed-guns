@@ -47,7 +47,7 @@ public class PlayerController : Singleton<PlayerController>
     private void Update()
     {
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
-        rb.AddForce(move * moveSpeed * Time.deltaTime);
+        rb.AddForce(moveSpeed * Time.deltaTime * move);
         lastMove = move;
         movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), 10f*Time.deltaTime);
         movingAudio.pitch = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), Time.deltaTime);

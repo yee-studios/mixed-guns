@@ -16,6 +16,18 @@ public class GunController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    private void Update()
+    {
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(
+            new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
+        float angleRad = Mathf.Atan2(
+            transform.position.x - mousePos.x,
+            mousePos.y - transform.position.y);
+        float angleDeg = 180 / Mathf.PI * angleRad;
+        Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
+       transform.rotation = Quaternion.Lerp(transform.rotation, newRot, Time.deltaTime * 10f);
+    }
+
     public void Shoot()
     {
         audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
