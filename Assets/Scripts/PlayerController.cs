@@ -60,8 +60,8 @@ public class PlayerController : Singleton<PlayerController>
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
         rb.AddForce(moveSpeed * Time.deltaTime * move);
         lastMove = move;
-        movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), 10f*Time.deltaTime) * constantSoundVolume;
-        movingAudio.pitch = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude), Time.deltaTime);
+        movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude) * constantSoundVolume, 10f*Time.deltaTime);
+        movingAudio.pitch = Mathf.Lerp(movingAudio.pitch, Mathf.Clamp01(move.magnitude), 10f * Time.deltaTime);
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(
             new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
@@ -71,7 +71,7 @@ public class PlayerController : Singleton<PlayerController>
         float angleDeg = 180 / Mathf.PI * angleRad;
         Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
         rotatingAudio.volume = Mathf.Lerp(rotatingAudio.volume,
-            Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)), 100f*Time.deltaTime) * constantSoundVolume;
+            Mathf.Clamp01(Quaternion.Angle(transform.rotation, newRot)) * constantSoundVolume, 100f*Time.deltaTime);
         transform.rotation = newRot;
 
         HandleDashes();
