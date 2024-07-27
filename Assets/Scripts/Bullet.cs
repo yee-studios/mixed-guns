@@ -23,9 +23,10 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        OneShotSoundsCreator.Instance?.BulletImpact(collision.ClosestPoint(transform.position));
+        Destroy(gameObject);
         Entity e = collision.GetComponentInParent<Entity>();
         if (!e) return;
         e.Health -= Random.Range(gun.MinDamage, gun.MaxDamage);
-        Destroy(gameObject);
     }
 }
