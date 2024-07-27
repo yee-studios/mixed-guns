@@ -25,6 +25,7 @@ public class PlayerController : Singleton<PlayerController>
     [Range(0f,1f)]
     [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] float lightReductionRate = 0.25f;
+    [SerializeField] float minLightOuter = 3f;
 
     [Header("Sounds")]
     [SerializeField] AudioClip dashSound;
@@ -77,12 +78,13 @@ public class PlayerController : Singleton<PlayerController>
 
         if(gun != null)
         {
+            if (input.actions["switchfiremode"].WasPressedThisFrame()) gun.SwitchFireMode();
             bool trig = input.actions["shoot"].IsPressed();
             if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
 
         surroundingLight.pointLightOuterRadius = Mathf.Clamp(
-            surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), 1f, Mathf.Infinity);
+            surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), minLightOuter, Mathf.Infinity);
     }
     #endregion
 

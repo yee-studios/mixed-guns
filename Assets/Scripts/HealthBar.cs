@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField] Transform target;
+    [SerializeField] public Entity target;
     [SerializeField] Vector3 offset;
     [SerializeField] Transform fill;
     [SerializeField] float lerpSpeed = 10f;
 
     private void LateUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, target.position + offset, lerpSpeed * Time.deltaTime);
+        transform.position = Vector3.Lerp(transform.position, target.transform.position + offset, lerpSpeed * Time.deltaTime);
     }
 
     public void UpdateValue(float value)

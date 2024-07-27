@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Entity : MonoBehaviour
 {
@@ -13,20 +13,36 @@ public class Entity : MonoBehaviour
         set
         {
             health = Mathf.Clamp(value, 0f, maxHealth);
-            Debug.Log(health);
             float h = health / maxHealth;
-            healthBar.UpdateValue(h);
-            mask.transform.rotation = Quaternion.identity;
-            mask.transform.position = transform.position + new Vector3(0, h, 0);
-            if (health < 0f) Die();
+            if(healthBar) healthBar.UpdateValue(h);
+            // TODO remove mask
+            if (mask)
+            {
+                mask.transform.rotation = Quaternion.identity;
+                mask.transform.position = transform.position + new Vector3(0, h, 0);
+            }
+            if (health <= 0f) Die();
         }
     }
 
     [SerializeField] float maxHealth = 100f;
     public float MaxHealth => maxHealth;
 
+    private void Awake()
+    {
+        if (healthBar == null) {
+            healthBar = Instantiate(PrefabHolder.Instance.HealthBarPrefab);
+            healthBar.target = this;
+        }
+        if (health <= 0f) health = maxHealth;
+    }
+
     void Die()
     {
-
+        OnDied?.Invoke();
+        Destroy(healthBar.gameObject);
+        Destroy(gameObject);
     }
+
+    public UnityEvent OnDied;
 }

@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 public class GunController : MonoBehaviour
 {
     [SerializeField] AudioClip[] shootSounds;
+    [SerializeField] AudioClip fireModeSwitchSound;
     [SerializeField] Transform tip;
     [SerializeField] Bullet bulletPrefab;
     [SerializeField] float bulletSpeed = 1000f;
@@ -17,10 +18,15 @@ public class GunController : MonoBehaviour
 
     [SerializeField] float fireRate = 0.25f;
     [SerializeField] int burstAmount = 3;
+    [SerializeField] float rotationSmooth = 10f;
+    [SerializeField] float lightExpansionWhenShooting = 1f;
     int currentBurst = 0;
-
     float nextFire = 0f;
 
+    [SerializeField] float minDamage = 10f;
+    public float MinDamage => minDamage;
+    [SerializeField] float maxDamage = 20f;
+    public float MaxDamage => maxDamage;
 
     private void Awake()
     {
@@ -38,7 +44,16 @@ public class GunController : MonoBehaviour
             mousePos.y - transform.position.y);
         float angleDeg = 180 / Mathf.PI * angleRad;
         Quaternion newRot = Quaternion.Euler(0, 0, angleDeg);
-        transform.rotation = Quaternion.Lerp(transform.rotation, newRot, Time.deltaTime * 10f);
+        transform.rotation = Quaternion.Lerp(transform.rotation, newRot, Time.deltaTime * rotationSmooth);
+    }
+
+    public void SwitchFireMode()
+    {
+        audioSource.PlayOneShot(fireModeSwitchSound);
+        int f = (int)fireMode;
+        f++;
+        fireMode = (FireMode)f;
+        if (!Enum.IsDefined(typeof(FireMode), fireMode)) fireMode = FireMode.Semi;
     }
 
     public bool UpdateTrigger(bool triggerStatus)
@@ -59,10 +74,11 @@ public class GunController : MonoBehaviour
 
     private void Shoot()
     {
-        PlayerController.Instance.surroundingLight.pointLightOuterRadius += 1f;
+        PlayerController.Instance.surroundingLight.pointLightOuterRadius += lightExpansionWhenShooting;
         audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
         Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
         b.speed = bulletSpeed;
+        b.gun = this;
         if(fireMode == FireMode.Burst)
         {
             currentBurst++;

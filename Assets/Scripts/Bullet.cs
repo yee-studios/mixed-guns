@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Bullet : MonoBehaviour
 {
+    public GunController gun;
     Rigidbody2D rb;
     public float speed = 1000f;
     [SerializeField] float destroyTime = 10f;
@@ -18,5 +19,13 @@ public class Bullet : MonoBehaviour
     {
         rb.AddForce(transform.up * speed);
         Destroy(gameObject, destroyTime);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Entity e = collision.GetComponentInParent<Entity>();
+        if (!e) return;
+        e.Health -= Random.Range(gun.MinDamage, gun.MaxDamage);
+        Destroy(gameObject);
     }
 }
