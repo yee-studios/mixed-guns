@@ -181,9 +181,9 @@ GameObject:
   - component: {fileID: 5411901711135023520}
   - component: {fileID: 4746445593628855120}
   - component: {fileID: 5446526605682381407}
-  - component: {fileID: 5121936593659960582}
-  - component: {fileID: 2755497458951270477}
-  - component: {fileID: 1301573404815390791}
+  - component: {fileID: 6074683400997346884}
+  - component: {fileID: 443182889432641748}
+  - component: {fileID: 2750873737087528423}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -242,7 +242,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 0.8
 --- !u!50 &5411901711135023520
 Rigidbody2D:
   serializedVersion: 4
@@ -251,7 +251,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5362355656074715177}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -301,7 +301,7 @@ MonoBehaviour:
   OnDied:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5121936593659960582
+--- !u!114 &6074683400997346884
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,7 +329,7 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: -1
---- !u!114 &2755497458951270477
+--- !u!114 &443182889432641748
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 5
-  radius: 1
+  radius: 0.5
   height: 2
   canMove: 1
   maxSpeed: 3
@@ -371,7 +371,7 @@ MonoBehaviour:
   slowWhenNotFacingTarget: 1
   whenCloseToDestination: 0
   constrainInsideGraph: 0
---- !u!114 &1301573404815390791
+--- !u!114 &2750873737087528423
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
