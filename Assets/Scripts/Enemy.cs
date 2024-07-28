@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Pathfinding;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -9,5 +10,10 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         entity = GetComponent<Entity>();
+    }
+
+    private void Start()
+    {
+        GetComponent<AIDestinationSetter>().target = PlayerController.Instance.transform;
     }
 }
