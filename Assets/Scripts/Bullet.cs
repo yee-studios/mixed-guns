@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     Rigidbody2D rb;
     public float speed = 1000f;
     [SerializeField] float destroyTime = 10f;
+    bool hit = false;
 
     private void Awake()
     {
@@ -23,6 +24,8 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (hit) return;
+        hit = true;
         OneShotSoundsCreator.Instance?.BulletImpact(collision.ClosestPoint(transform.position));
         Destroy(gameObject);
         Entity e = collision.GetComponentInParent<Entity>();

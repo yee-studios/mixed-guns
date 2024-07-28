@@ -10,10 +10,30 @@ public class Enemy : MonoBehaviour
     private void Awake()
     {
         entity = GetComponent<Entity>();
+        entity.OnDied.AddListener(OnDied);
     }
 
     private void Start()
     {
-        GetComponent<AIDestinationSetter>().target = PlayerController.Instance.transform;
+        GetComponent<AIDestinationSetter>().target = PlayerController.Instance?.transform;
+    }
+
+    float nextHit = 0f;
+    [SerializeField] float hitRate = 0.5f;
+    [SerializeField] float hitDamage = 10f;
+    [SerializeField] float hitRadius = 2f;
+    private void Update()
+    {
+        float now = Time.time;
+        if (now < nextHit) return;
+        if (!PlayerController.Instance) return;
+        if (Vector3.Distance(transform.position, PlayerController.Instance.LastPosition) > hitRadius) return;
+        nextHit = now + hitRate;
+        PlayerController.Instance.Entity.Health -= hitDamage;
+    }
+
+    void OnDied()
+    {
+        CoinsManager.Instance.Coins += 10;
     }
 }

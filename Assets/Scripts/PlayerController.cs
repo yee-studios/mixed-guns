@@ -14,7 +14,8 @@ public class PlayerController : Singleton<PlayerController>
     AudioSource audioSource;
     Entity entity;
     public Entity Entity => entity;
-    Vector2 lastMove = new Vector2(0,1);
+    Vector2 lastMove = new();
+    public Vector2 LastPosition { get; private set; }
     #endregion
 
     [Header("Parameters")]
@@ -57,6 +58,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Update()
     {
+        LastPosition = transform.position;
+
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
         rb.AddForce(moveSpeed * Time.deltaTime * move);
         lastMove = move;
@@ -106,7 +109,7 @@ public class PlayerController : Singleton<PlayerController>
         if (!input.actions["dash"].WasPressedThisFrame())
             return;
 
-        if (availableDashes <= 0)
+        if (availableDashes <= 0 || lastMove.magnitude <= 0)
         {
             audioSource.PlayOneShot(cantDashSound);
             Instantiate(fart, transform.position, transform.rotation);
