@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -51,14 +52,41 @@ public class PlayerController : Singleton<PlayerController>
     {
         base.Awake();
         rb = GetComponent<Rigidbody2D>();
-        input = GetComponent<PlayerInput>();
         audioSource = GetComponent<AudioSource>();
         entity = GetComponent<Entity>();
+        entity.OnDied.AddListener(OnDied);
+    }
+
+    float d1 = 3f;
+    float d2 = .1f;
+
+    protected void Start()
+    {
+        input = FindObjectOfType<PlayerInput>();
+        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
+        DOTween.To(() => surroundingLight.pointLightOuterRadius,
+            x => surroundingLight.pointLightOuterRadius = x,
+            surroundingLight.pointLightOuterRadius, d1)
+            .ChangeStartValue(0f).SetDelay(d2);
+
+        DOTween.To(() => flashLight.falloffIntensity, x => flashLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
+        DOTween.To(() => flashLight.pointLightInnerRadius, x => flashLight.pointLightInnerRadius = x,
+            flashLight.pointLightInnerRadius, d1).ChangeStartValue(0f).SetDelay(d2);
+        DOTween.To(() => flashLight.pointLightOuterRadius, x => flashLight.pointLightOuterRadius = x,
+            flashLight.pointLightOuterRadius, d1).ChangeStartValue(0f).SetDelay(d2);
+    }
+
+    void OnDied()
+    {
+        DeathScreen.Instance.Initialize();
+        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 1f, 1f);
+        DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x, 0f, 1f);
     }
 
     private void Update()
     {
         LastPosition = transform.position;
+        surroundingLight.transform.position = Vector3.Lerp(surroundingLight.transform.position, transform.position, 10f * Time.deltaTime);
 
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
         rb.AddForce(moveSpeed * Time.deltaTime * move);
