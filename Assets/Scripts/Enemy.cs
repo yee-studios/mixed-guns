@@ -16,12 +16,14 @@ public class Enemy : MonoBehaviour
     private void Start()
     {
         GetComponent<AIDestinationSetter>().target = PlayerController.Instance?.transform;
+        hitRadius = GetComponent<CircleCollider2D>().radius*2;
     }
 
     float nextHit = 0f;
+    float hitRadius = 2f;
     [SerializeField] float hitRate = 0.5f;
     [SerializeField] float hitDamage = 10f;
-    [SerializeField] float hitRadius = 2f;
+    
     private void Update()
     {
         float now = Time.time;
