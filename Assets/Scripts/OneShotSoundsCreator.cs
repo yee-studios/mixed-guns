@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 using static UnityEditor.PlayerSettings;
 
 public class OneShotSoundsCreator : PersistentSingleton<OneShotSoundsCreator>
@@ -14,25 +16,21 @@ public class OneShotSoundsCreator : PersistentSingleton<OneShotSoundsCreator>
     }
 
     // TODO this is experimental
-    public static void CreateOneShotAtPosition(Vector3 pos, AudioClip audioClip, float pitch, float volume)
+    public static void CreateOneShotAtPosition(Vector3 pos, AudioClip clip, float pitch = 1f, float volume = 1f)
     {
-        AudioSource.PlayClipAtPoint(audioClip, pos);
-        return;
-#pragma warning disable CS0162 // Unreachable code detected
-        GameObject go = new GameObject();
-#pragma warning restore CS0162 // Unreachable code detected
+        GameObject go = new GameObject("One shot audio");
         AudioSource source = go.AddComponent<AudioSource>();
         source.outputAudioMixerGroup = Instance.mixer.FindMatchingGroups("Master/Sounds")[0]
             ?? Instance.mixer.FindMatchingGroups("Master")[0] ?? null;
-        source.clip = audioClip;
+        source.clip = clip;
+        source.spatialBlend = 1f;
         source.volume = volume;
         source.pitch = pitch;
         source.playOnAwake = false;
         source.Play();
+        // this was from the unity audiosource source code
+        Destroy(go, clip.length * ((Time.timeScale < 0.01f) ? 0.01f : Time.timeScale));
     }
 
-    internal void BulletImpact(Vector3 pos)
-    {
-        AudioSource.PlayClipAtPoint(bulletImpact, pos);
-    }
+    internal void BulletImpact(Vector3 pos) => CreateOneShotAtPosition(pos, bulletImpact);
 }

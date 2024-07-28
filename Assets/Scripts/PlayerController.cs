@@ -58,16 +58,16 @@ public class PlayerController : Singleton<PlayerController>
     }
 
     float d1 = 3f;
-    float d2 = .1f;
+    float d2 = .25f;
 
     protected void Start()
     {
         input = FindObjectOfType<PlayerInput>();
         DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
-        DOTween.To(() => surroundingLight.pointLightOuterRadius,
-            x => surroundingLight.pointLightOuterRadius = x,
-            surroundingLight.pointLightOuterRadius, d1)
-            .ChangeStartValue(0f).SetDelay(d2);
+
+        DOTween.To(() => minLightOuter, x => minLightOuter = x, 3f, d1).ChangeStartValue(0f).SetDelay(d2);
+        DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
+            surroundingLight.pointLightOuterRadius, d1).ChangeStartValue(0f).SetDelay(d2).SetUpdate(UpdateType.Late);
 
         DOTween.To(() => flashLight.falloffIntensity, x => flashLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
         DOTween.To(() => flashLight.pointLightInnerRadius, x => flashLight.pointLightInnerRadius = x,
