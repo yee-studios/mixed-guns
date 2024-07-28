@@ -7,8 +7,6 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(AudioSource))]
 public class GunController : MonoBehaviour
 {
-    [SerializeField] AudioClip[] shootSounds;
-    [SerializeField] AudioClip fireModeSwitchSound;
     [SerializeField] Transform tip;
     [SerializeField] Bullet bulletPrefab;
     [SerializeField] float bulletSpeed = 1000f;
@@ -28,9 +26,12 @@ public class GunController : MonoBehaviour
     [SerializeField] float maxDamage = 20f;
     public float MaxDamage => maxDamage;
 
+    private AudioClip[] shootSounds;
+    
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        shootSounds = AudioClipsManager.Instance.Shoot;
     }
 
     private void LateUpdate()
@@ -49,7 +50,7 @@ public class GunController : MonoBehaviour
 
     public void SwitchFireMode()
     {
-        audioSource.PlayOneShot(fireModeSwitchSound);
+        audioSource.PlayOneShot(AudioClipsManager.Instance.FireModeSwitch);
         int f = (int)fireMode;
         f++;
         fireMode = (FireMode)f;

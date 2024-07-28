@@ -12,13 +12,6 @@ public class DeathScreen : Singleton<DeathScreen>
     [SerializeField] TextMeshProUGUI title;
     [SerializeField] Button button;
 
-    // TODO maybe move these sounds and put them all together with other sounds?
-    [SerializeField] AudioClip clickSound;
-    [SerializeField] AudioClip deathSound;
-    [SerializeField] AudioClip swooshSound;
-    [SerializeField] AudioClip sweeshSound;
-    [SerializeField] AudioClip swuushSound;
-
     protected override void Awake()
     {
         base.Awake();
@@ -27,13 +20,13 @@ public class DeathScreen : Singleton<DeathScreen>
         button.onClick.AddListener(OnClick);
     }
 
-    public void BreatheIn() => OneShotSoundsCreator.PlaySound(sweeshSound);
-    public void BreatheOut() => OneShotSoundsCreator.PlaySound(swuushSound);
+    public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn);
+    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Swoosh);
 
     void OnClick()
     {
         button.interactable = false;
-        OneShotSoundsCreator.PlaySound(clickSound);
+        OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Click);
         StartCoroutine(LoadScene());
     }
 
@@ -49,7 +42,7 @@ public class DeathScreen : Singleton<DeathScreen>
 
     public void Initialize()
     {
-        OneShotSoundsCreator.PlaySound(deathSound);
+        OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.ScreenDeath);
         HealthBorders.Instance.Image.DOFade(0f, 1f);
 
         title.enabled = true;
@@ -65,6 +58,6 @@ public class DeathScreen : Singleton<DeathScreen>
             .DOLocalMove(Vector3.up * -100f, 3f)
             .ChangeStartValue(Vector3.up * -500f)
             .SetEase(Ease.OutSine)
-            .OnComplete(() => { button.interactable = true; OneShotSoundsCreator.PlaySound(swooshSound); });
+            .OnComplete(() => { button.interactable = true; OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Swoosh); });
     }
 }

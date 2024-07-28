@@ -31,12 +31,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float lightReductionRate = 0.25f;
     [SerializeField] float minLightOuter = 3f;
 
-    [Header("Sounds")]
-    [SerializeField] AudioClip dashSound;
-    [SerializeField] AudioClip chargeSound;
-    [SerializeField] AudioClip shootSound;
-    [SerializeField] AudioClip cantDashSound;
-    [SerializeField] AudioClip deathSound;
+    [Header("Audio Sources")]
     [SerializeField] AudioSource movingAudio;
     [SerializeField] AudioSource rotatingAudio;
 
@@ -86,7 +81,7 @@ public class PlayerController : Singleton<PlayerController>
 
     void OnDied()
     {
-        OneShotSoundsCreator.CreateOneShotAtPosition(transform.position, deathSound);
+        OneShotSoundsCreator.PlayOneShotAtPosition(transform.position, AudioClipsManager.Instance.PlayerDeath);
         DeathScreen.Instance.Initialize();
         MusicController.Instance.DeathMusic();
         DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 1f, 1f);
@@ -145,7 +140,7 @@ public class PlayerController : Singleton<PlayerController>
             {
                 currentDashReload = 0f;
                 availableDashes++;
-                audioSource.PlayOneShot(chargeSound);
+                audioSource.PlayOneShot(AudioClipsManager.Instance.Charge);
             }
         }
         DashChargeUIController.Instance.UpdateUnits(availableDashes, currentDashReload/dashReloadTime);
@@ -155,12 +150,12 @@ public class PlayerController : Singleton<PlayerController>
 
         if (availableDashes <= 0 || lastMove.magnitude <= 0)
         {
-            audioSource.PlayOneShot(cantDashSound);
+            audioSource.PlayOneShot(AudioClipsManager.Instance.CantDash);
             Instantiate(fart, transform.position, transform.rotation);
             return;
         }
 
-        audioSource.PlayOneShot(dashSound);
+        audioSource.PlayOneShot(AudioClipsManager.Instance.Dash);
         rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
         availableDashes--;
     }
