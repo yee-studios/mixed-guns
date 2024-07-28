@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -10,6 +11,13 @@ public class DeathScreen : Singleton<DeathScreen>
 {
     [SerializeField] TextMeshProUGUI title;
     [SerializeField] Button button;
+
+    // TODO maybe move these sounds and put them all together with other sounds?
+    [SerializeField] AudioClip clickSound;
+    [SerializeField] AudioClip deathSound;
+    [SerializeField] AudioClip swooshSound;
+    [SerializeField] AudioClip sweeshSound;
+    [SerializeField] AudioClip swuushSound;
 
     protected override void Awake()
     {
@@ -19,13 +27,31 @@ public class DeathScreen : Singleton<DeathScreen>
         button.onClick.AddListener(OnClick);
     }
 
+    public void BreatheIn() => OneShotSoundsCreator.PlaySound(sweeshSound);
+    public void BreatheOut() => OneShotSoundsCreator.PlaySound(swuushSound);
+
     void OnClick()
     {
-        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+        button.interactable = false;
+        OneShotSoundsCreator.PlaySound(clickSound);
+        StartCoroutine(LoadScene());
+    }
+
+    IEnumerator LoadScene()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        AsyncOperation op = SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
+        while (!op.isDone)
+        {
+            yield return null;
+        }
     }
 
     public void Initialize()
     {
+        OneShotSoundsCreator.PlaySound(deathSound);
+        HealthBorders.Instance.Image.DOFade(0f, 1f);
+
         title.enabled = true;
         button.gameObject.SetActive(true);
         button.interactable = false;
@@ -39,6 +65,6 @@ public class DeathScreen : Singleton<DeathScreen>
             .DOLocalMove(Vector3.up * -100f, 3f)
             .ChangeStartValue(Vector3.up * -500f)
             .SetEase(Ease.OutSine)
-            .OnComplete(() => button.interactable = true);
+            .OnComplete(() => { button.interactable = true; OneShotSoundsCreator.PlaySound(swooshSound); });
     }
 }

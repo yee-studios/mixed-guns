@@ -7,6 +7,7 @@ public class Entity : MonoBehaviour
     [SerializeField] SpriteMask mask;
     [SerializeField] HealthBar healthBar;
     [SerializeField] float health = 0f;
+    [SerializeField] float regenRate = 1f;
     public float Health
     {
         get { return health; }
@@ -35,6 +36,11 @@ public class Entity : MonoBehaviour
             healthBar.target = this;
         }
         if (health <= 0f) health = maxHealth;
+    }
+
+    private void Update()
+    {
+        Health += regenRate * Time.deltaTime;
     }
 
     void Die()

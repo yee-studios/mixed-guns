@@ -26,7 +26,9 @@ public class Bullet : MonoBehaviour
     {
         if (hit) return;
         hit = true;
-        OneShotSoundsCreator.Instance?.BulletImpact(collision.ClosestPoint(transform.position));
+        Vector3 point = collision.ClosestPoint(transform.position);
+        OneShotSoundsCreator.Instance?.BulletImpact(point);
+        Instantiate(PrefabHolder.Instance.BloodParticles, point, Quaternion.FromToRotation(collision.transform.position, transform.position));
         Destroy(gameObject);
         Entity e = collision.GetComponentInParent<Entity>();
         if (!e) return;

@@ -7,10 +7,14 @@ public class Enemy : MonoBehaviour
 {
     Entity entity;
     public Entity Entity => entity;
+    AudioSource audioSource;
+    [SerializeField] AudioClip hitSound;
+    [SerializeField] AudioClip deathSound;
     private void Awake()
     {
         entity = GetComponent<Entity>();
         entity.OnDied.AddListener(OnDied);
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -32,10 +36,13 @@ public class Enemy : MonoBehaviour
         if (Vector3.Distance(transform.position, PlayerController.Instance.LastPosition) > hitRadius) return;
         nextHit = now + hitRate;
         PlayerController.Instance.Entity.Health -= hitDamage;
+        audioSource.PlayOneShot(hitSound);
     }
 
     void OnDied()
     {
+        Instantiate(PrefabHolder.Instance.DeathParticles, transform.position, Quaternion.identity);
+        OneShotSoundsCreator.CreateOneShotAtPosition(transform.position, deathSound, Random.Range(0.9f, 1.1f));
         CoinsManager.Instance.Coins += 10;
     }
 }

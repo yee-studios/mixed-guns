@@ -1,4 +1,6 @@
+using Cinemachine;
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,10 +36,13 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] AudioClip chargeSound;
     [SerializeField] AudioClip shootSound;
     [SerializeField] AudioClip cantDashSound;
+    [SerializeField] AudioClip deathSound;
     [SerializeField] AudioSource movingAudio;
     [SerializeField] AudioSource rotatingAudio;
 
     [SerializeField] ParticleSystem fart;
+    [SerializeField] CinemachineVirtualCamera cinemachineVirtualCamera;
+    CinemachineBasicMultiChannelPerlin cam_noise;
 
     [SerializeField] GunController gun;
     public Light2D flashLight;
@@ -47,6 +52,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float dashReloadTime = 1f;
     [SerializeField] float currentDashReload = 0f;
 
+    [SerializeField] float debugDeathTime = 0f;
+
     #region unity methods
     protected override void Awake()
     {
@@ -55,6 +62,7 @@ public class PlayerController : Singleton<PlayerController>
         audioSource = GetComponent<AudioSource>();
         entity = GetComponent<Entity>();
         entity.OnDied.AddListener(OnDied);
+        cam_noise = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 
     float d1 = 3f;
@@ -78,13 +86,21 @@ public class PlayerController : Singleton<PlayerController>
 
     void OnDied()
     {
+        OneShotSoundsCreator.CreateOneShotAtPosition(transform.position, deathSound);
         DeathScreen.Instance.Initialize();
+        MusicController.Instance.DeathMusic();
         DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 1f, 1f);
         DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x, 0f, 1f);
     }
 
     private void Update()
     {
+#if UNITY_EDITOR
+        if (debugDeathTime > 0) entity.Health -= Time.deltaTime/debugDeathTime;
+#endif
+
+        HandleCameraNoise();
+
         LastPosition = transform.position;
         surroundingLight.transform.position = Vector3.Lerp(surroundingLight.transform.position, transform.position, 10f * Time.deltaTime);
 
@@ -117,6 +133,7 @@ public class PlayerController : Singleton<PlayerController>
         surroundingLight.pointLightOuterRadius = Mathf.Clamp(
             surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), minLightOuter, Mathf.Infinity);
     }
+
     #endregion
 
     void HandleDashes()
@@ -128,7 +145,6 @@ public class PlayerController : Singleton<PlayerController>
             {
                 currentDashReload = 0f;
                 availableDashes++;
-                audioSource.pitch = 1f;
                 audioSource.PlayOneShot(chargeSound);
             }
         }
@@ -147,5 +163,14 @@ public class PlayerController : Singleton<PlayerController>
         audioSource.PlayOneShot(dashSound);
         rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
         availableDashes--;
+    }
+
+    private void HandleCameraNoise()
+    {
+        float h = entity.Health / entity.MaxHealth;
+        cinemachineVirtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(3f, 5f, h);
+        float d = (1f-h) * 3f;
+        cam_noise.m_AmplitudeGain = d;
+        cam_noise.m_FrequencyGain = d;
     }
 }
