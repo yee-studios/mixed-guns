@@ -1,10 +1,7 @@
 using Cinemachine;
 using DG.Tweening;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 
@@ -30,8 +27,16 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] float lightReductionRate = 0.25f;
     [SerializeField] float minLightOuter = 3f;
+    [SerializeField] float maxLightOuter = 8f;
     [Range(0f, 5f)]
     [SerializeField] float screenShakeIntensity = 1.5f;
+    [SerializeField] int doubleSpeedTimeRemaining = 0;
+    bool doubleSpeed = false;
+    [SerializeField] int fullVisionTimeRemaining = 0;
+    bool fullVision = false;
+    bool fullVisionTweenInProgress = false;
+
+    
     public bool startAnimation { private set; get; }
 
     [Header("Audio Sources")]
@@ -61,6 +66,7 @@ public class PlayerController : Singleton<PlayerController>
         entity = GetComponent<Entity>();
         entity.OnDied.AddListener(OnDied);
         cam_noise = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        StartCoroutine(EverySecond());
     }
 
     float d1 = 3f;
@@ -99,7 +105,6 @@ public class PlayerController : Singleton<PlayerController>
 #if UNITY_EDITOR
         if (input.actions["die"].IsPressed()) entity.Health -= Time.deltaTime/debugDeathTime;
 #endif
-
         if (ShopController.Instance.shopOpen) return;
 
         HandleCameraNoise();
@@ -108,7 +113,7 @@ public class PlayerController : Singleton<PlayerController>
         surroundingLight.transform.position = Vector3.Lerp(surroundingLight.transform.position, transform.position, 10f * Time.deltaTime);
 
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
-        rb.AddForce(moveSpeed * Time.deltaTime * move);
+        rb.AddForce(moveSpeed * 1000 * (doubleSpeed ? 2 : 1) * Time.deltaTime * move);
         lastMove = move;
         movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude) * constantSoundVolume, 10f*Time.deltaTime);
         movingAudio.pitch = Mathf.Lerp(movingAudio.pitch, Mathf.Clamp01(move.magnitude), 10f * Time.deltaTime);
@@ -133,8 +138,37 @@ public class PlayerController : Singleton<PlayerController>
             if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
 
-        surroundingLight.pointLightOuterRadius = Mathf.Clamp(
-            surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), minLightOuter, Mathf.Infinity);
+        if (fullVisionTimeRemaining > 0) {
+            if (fullVision) return;
+            fullVision = true;
+            DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
+                100f, 2f);
+        }
+        else
+        {
+            if (!fullVision)
+            {
+                surroundingLight.pointLightOuterRadius = Mathf.Clamp(
+                    surroundingLight.pointLightOuterRadius - (Time.deltaTime * lightReductionRate), minLightOuter,
+                    maxLightOuter);
+                
+                return;
+            }
+
+            if (fullVisionTweenInProgress) return;
+            fullVisionTweenInProgress = true;
+            DOTween.To(() => surroundingLight.pointLightOuterRadius,
+                    x => surroundingLight.pointLightOuterRadius = x, minLightOuter, 1f)
+                .OnComplete(() =>
+                {
+                    fullVision = false;
+                    fullVisionTweenInProgress = false;
+                });
+        }
+
+        if (doubleSpeedTimeRemaining > 0 && !doubleSpeed) doubleSpeed = true;
+        else if (doubleSpeedTimeRemaining <= 0 && doubleSpeed) doubleSpeed = false;
+        
     }
 
     #endregion
@@ -175,5 +209,14 @@ public class PlayerController : Singleton<PlayerController>
         float d = (1f-healthDiff) * screenShakeIntensity;
         cam_noise.m_AmplitudeGain = d;
         cam_noise.m_FrequencyGain = d;
+    }
+
+    IEnumerator EverySecond() {
+        for (;;)
+        {
+            if (doubleSpeedTimeRemaining > 0) doubleSpeedTimeRemaining -= 1;
+            if (fullVisionTimeRemaining > 0) fullVisionTimeRemaining -= 1;
+            yield return new WaitForSeconds(1);
+        }
     }
 }
