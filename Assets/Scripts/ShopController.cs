@@ -41,7 +41,9 @@ public class ShopController : Singleton<ShopController>
 
     private void Update()
     {
-        if(PlayerController.Instance.startAnimation || !input.actions["shop"].WasPressedThisFrame()) return;
+        if (shopOpen && !PlayerController.Instance) ToggleShop();
+        if (!PlayerController.Instance || PlayerController.Instance.startAnimation ||
+            !input.actions["shop"].WasPressedThisFrame()) return;
         ToggleShop();
     }
 
