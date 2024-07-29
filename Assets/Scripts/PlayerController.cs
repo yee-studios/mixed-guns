@@ -30,6 +30,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] float lightReductionRate = 0.25f;
     [SerializeField] float minLightOuter = 3f;
+    [Range(0f, 5f)]
+    [SerializeField] float screenShakeIntensity = 1.5f;
 
     [Header("Audio Sources")]
     [SerializeField] AudioSource movingAudio;
@@ -162,9 +164,9 @@ public class PlayerController : Singleton<PlayerController>
 
     private void HandleCameraNoise()
     {
-        float h = entity.Health / entity.MaxHealth;
-        cinemachineVirtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(3f, 5f, h);
-        float d = (1f-h) * 3f;
+        float healthDiff = entity.Health / entity.MaxHealth;
+        cinemachineVirtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(3f, 4f, healthDiff);
+        float d = (1f-healthDiff) * screenShakeIntensity;
         cam_noise.m_AmplitudeGain = d;
         cam_noise.m_FrequencyGain = d;
     }

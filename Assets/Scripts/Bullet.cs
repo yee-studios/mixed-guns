@@ -1,12 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
+public enum BulletType
+{
+    Normal,
+    Explosive
+}
+
 public class Bullet : MonoBehaviour
 {
     public GunController gun;
     Rigidbody2D rb;
+    public BulletType type;
     public float speed = 1000f;
     [SerializeField] float destroyTime = 10f;
     bool hit = false;
@@ -26,12 +30,25 @@ public class Bullet : MonoBehaviour
     {
         if (hit) return;
         hit = true;
+        
+        if (type == BulletType.Explosive) Explode();
+        
         Vector3 point = collision.ClosestPoint(transform.position);
         OneShotSoundsCreator.Instance?.BulletImpact(point);
-        Instantiate(PrefabHolder.Instance.BloodParticles, point, Quaternion.FromToRotation(collision.transform.position, transform.position));
+        if (collision.CompareTag("Enemy")) Instantiate(PrefabHolder.Instance.BloodParticles, point, Quaternion.FromToRotation(collision.transform.position, transform.position));
         Destroy(gameObject);
         Entity e = collision.GetComponentInParent<Entity>();
         if (!e) return;
         e.Health -= Random.Range(gun.MinDamage, gun.MaxDamage);
+    }
+
+    void Explode()
+    {
+        foreach (var col in Physics2D.OverlapCircleAll(transform.position, 5f))
+        {
+            Entity e = col.GetComponent<Entity>();
+            if (!e) continue;
+            e.Health -= 50;
+        }
     }
 }

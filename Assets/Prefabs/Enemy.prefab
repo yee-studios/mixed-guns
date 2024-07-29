@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1872969362165733438}
   m_Layer: 0
   m_Name: Triangle
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 4965402350403878378}
   m_Layer: 0
   m_Name: Body
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: -2850037122891874102}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -283,8 +283,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be0b3bd0044af5c4f96bbf88b88841a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSound: {fileID: 8300000, guid: afc63932c6b792947a141d99b7d60476, type: 3}
-  deathSound: {fileID: 8300000, guid: d19490ac18ef1914ca19ef52495ea6bc, type: 3}
   hitRate: 0.5
   hitDamage: 10
 --- !u!114 &5446526605682381407
@@ -302,6 +300,7 @@ MonoBehaviour:
   mask: {fileID: 0}
   healthBar: {fileID: 0}
   health: 100
+  regenRate: 1
   maxHealth: 100
   OnDied:
     m_PersistentCalls:

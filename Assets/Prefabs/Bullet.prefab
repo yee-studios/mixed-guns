@@ -189,10 +189,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3339859694473544276}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c9f7d29feb949e43869a90875cdd266, type: 3}
+  m_Script: {fileID: 11500000, guid: 391179cd7004dd6498a89d4f7471ed2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gun: {fileID: 0}
+  type: 1
   speed: 1000
   destroyTime: 10
 --- !u!1 &4430281728887041587
