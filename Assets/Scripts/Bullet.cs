@@ -13,6 +13,8 @@ public class Bullet : MonoBehaviour
     public BulletType type;
     public float speed = 1000f;
     [SerializeField] float destroyTime = 10f;
+    [SerializeField] float explodeDamage = 25f;
+    [SerializeField] float explodeRadius = 3f;
     bool hit = false;
 
     private void Awake()
@@ -44,11 +46,18 @@ public class Bullet : MonoBehaviour
 
     void Explode()
     {
-        foreach (var col in Physics2D.OverlapCircleAll(transform.position, 5f))
+        foreach (var col in Physics2D.OverlapCircleAll(transform.position, explodeRadius))
         {
             Entity e = col.GetComponent<Entity>();
             if (!e) continue;
-            e.Health -= 50;
+            e.Health -= explodeDamage;
         }
     }
+    
+    private void OnDrawGizmos()
+    {
+        if (type == BulletType.Explosive)
+            Gizmos.DrawWireSphere(transform.position, explodeRadius);
+    }
+    
 }
