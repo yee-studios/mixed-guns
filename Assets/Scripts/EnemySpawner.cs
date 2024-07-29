@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : Singleton<EnemySpawner>
 {
     [SerializeField] Enemy enemyPrefab;
     [SerializeField] float spawnRate = 1f;
@@ -10,9 +10,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] List<Enemy> enemies;
     [SerializeField] float r = 50f;
     [SerializeField] float lastSpawn = 0f;
+    [SerializeField] bool spawning = true;
 
     private void Update()
     {
+        if (!spawning) return;
         if (enemies.Count >= maxEnemies) return;
         float now = Time.time;
         if (now < lastSpawn + spawnRate) return;

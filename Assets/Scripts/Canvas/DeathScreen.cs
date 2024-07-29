@@ -21,7 +21,7 @@ public class DeathScreen : Singleton<DeathScreen>
     }
 
     public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn);
-    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Swoosh);
+    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathOut);
 
     void OnClick()
     {

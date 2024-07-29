@@ -21,11 +21,15 @@ public class PlayerController : Singleton<PlayerController>
     public Vector2 LastPosition { get; private set; }
     #endregion
 
-    [Header("Parameters")]
-    [SerializeField] float moveSpeed = 10f;
+
+    [Header("Dashes")]
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
     [SerializeField] int maxDashes = 3;
+    [SerializeField] bool dashesEnabled = false;
+
+    [Header("Parameters")]
+    [SerializeField] float moveSpeed = 10f;
     [Range(0f,1f)]
     [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] float lightReductionRate = 0.25f;
@@ -71,8 +75,14 @@ public class PlayerController : Singleton<PlayerController>
         input = FindObjectOfType<PlayerInput>();
         startAnimation = true;
         entity.invencibility = true;
+        EnemySpawner.Instance.enabled = false;
         DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1)
-            .ChangeStartValue(1f).SetDelay(d2).OnComplete(() => { entity.invencibility = false; startAnimation = false; });    
+            .ChangeStartValue(1f).SetDelay(d2)
+            .OnComplete(() => {
+                entity.invencibility = false;
+                startAnimation = false;
+                EnemySpawner.Instance.enabled = true;
+            });    
 
         DOTween.To(() => minLightOuter, x => minLightOuter = x, 3f, d1).ChangeStartValue(0f).SetDelay(d2);
         DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
@@ -141,6 +151,8 @@ public class PlayerController : Singleton<PlayerController>
 
     void HandleDashes()
     {
+        if (!dashesEnabled) return;
+
         if (availableDashes < maxDashes)
         {
             currentDashReload += Time.deltaTime;

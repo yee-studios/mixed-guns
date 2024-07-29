@@ -12,6 +12,7 @@ public class GunController : MonoBehaviour
     [SerializeField] Bullet bulletPrefab;
     [SerializeField] float bulletSpeed = 1000f;
     [SerializeField] FireMode fireMode = FireMode.Semi;
+    [SerializeField] BulletType bulletType = BulletType.Normal;
     public bool triggerStatus = false;
     AudioSource audioSource;
 
@@ -85,6 +86,7 @@ public class GunController : MonoBehaviour
         Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
         b.speed = bulletSpeed;
         b.gun = this;
+        b.type = bulletType;
         if(fireMode == FireMode.Burst)
         {
             currentBurst++;

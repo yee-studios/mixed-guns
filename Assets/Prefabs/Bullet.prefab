@@ -193,7 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gun: {fileID: 0}
-  type: 1
+  type: 0
   speed: 1000
   destroyTime: 10
 --- !u!1 &4430281728887041587
