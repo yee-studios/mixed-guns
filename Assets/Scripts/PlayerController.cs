@@ -30,11 +30,11 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float maxLightOuter = 8f;
     [Range(0f, 5f)]
     [SerializeField] float screenShakeIntensity = 1.5f;
-    [SerializeField] int doubleSpeedTimeRemaining = 0;
-    bool doubleSpeed = false;
-    [SerializeField] int fullVisionTimeRemaining = 0;
-    bool fullVision = false;
-    bool fullVisionTweenInProgress = false;
+    public int doubleSpeedTimeRemaining;
+    [SerializeField] bool doubleSpeed;
+    public int fullVisionTimeRemaining;
+    bool fullVision;
+    bool fullVisionTweenInProgress;
 
     
     public bool startAnimation { private set; get; }
@@ -137,6 +137,9 @@ public class PlayerController : Singleton<PlayerController>
             bool trig = input.actions["shoot"].IsPressed();
             if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
+        
+        if (doubleSpeedTimeRemaining > 0 && !doubleSpeed) doubleSpeed = true;
+        else if (doubleSpeedTimeRemaining <= 0 && doubleSpeed) doubleSpeed = false;
 
         if (fullVisionTimeRemaining > 0) {
             if (fullVision) return;
@@ -165,9 +168,6 @@ public class PlayerController : Singleton<PlayerController>
                     fullVisionTweenInProgress = false;
                 });
         }
-
-        if (doubleSpeedTimeRemaining > 0 && !doubleSpeed) doubleSpeed = true;
-        else if (doubleSpeedTimeRemaining <= 0 && doubleSpeed) doubleSpeed = false;
         
     }
 
