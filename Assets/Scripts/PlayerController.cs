@@ -32,6 +32,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float minLightOuter = 3f;
     [Range(0f, 5f)]
     [SerializeField] float screenShakeIntensity = 1.5f;
+    public bool startAnimation { private set; get; }
 
     [Header("Audio Sources")]
     [SerializeField] AudioSource movingAudio;
@@ -68,7 +69,10 @@ public class PlayerController : Singleton<PlayerController>
     protected void Start()
     {
         input = FindObjectOfType<PlayerInput>();
-        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
+        startAnimation = true;
+        entity.invencibility = true;
+        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1)
+            .ChangeStartValue(1f).SetDelay(d2).OnComplete(() => { entity.invencibility = false; startAnimation = false; });    
 
         DOTween.To(() => minLightOuter, x => minLightOuter = x, 3f, d1).ChangeStartValue(0f).SetDelay(d2);
         DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
@@ -93,8 +97,10 @@ public class PlayerController : Singleton<PlayerController>
     private void Update()
     {
 #if UNITY_EDITOR
-        if (debugDeathTime > 0) entity.Health -= Time.deltaTime/debugDeathTime;
+        if (input.actions["die"].IsPressed()) entity.Health -= Time.deltaTime/debugDeathTime;
 #endif
+
+        if (ShopController.Instance.shopOpen) return;
 
         HandleCameraNoise();
 

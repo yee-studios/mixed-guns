@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 
 public class MusicController : Singleton<MusicController>
 {
     [SerializeField] AudioSource fullSource;
     [SerializeField] AudioSource instSource;
     [SerializeField] AudioSource deathSource;
+    [SerializeField] AudioSource shopSource;
 
     [SerializeField, Range(0f, 1f)]
     float mixAmount = 0f;
@@ -18,6 +21,7 @@ public class MusicController : Singleton<MusicController>
     {
         base.Awake();
         deathSource.volume = 0f;
+        shopSource.volume = 0f;
         DOTween.To(() => volume, x => volume = x, 1f, 3f).ChangeStartValue(0f);
     }
 
@@ -26,7 +30,15 @@ public class MusicController : Singleton<MusicController>
         fullSource.DOPitch(0f, 1f);
         instSource.DOPitch(0f, 1f);
         deathSource.Play();
-        FadeIn(deathSource);
+        Fade(deathSource);
+    }
+
+    public void ShopMusic(bool toggle)
+    {
+        fullSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
+        instSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
+        if (toggle) shopSource.Play();
+        Fade(shopSource, 1f, toggle ? 1f : 0f, toggle ? 0f : 1f).OnComplete(() => { if (!toggle) shopSource.Stop(); });
     }
 
     private void Update()
@@ -41,9 +53,6 @@ public class MusicController : Singleton<MusicController>
         instSource.volume = (1f-vol) * volume;
     }
 
-    void FadeIn(AudioSource source, float t = 1f, float vol = 1f, float startVol = 0f, Ease ease = Ease.InOutSine)
-    {
-        source.volume = startVol;
-        source.DOFade(vol, t).SetEase(ease);
-    }
+    TweenerCore<float, float, FloatOptions> Fade(AudioSource source, float t = 1f, float vol = 1f, float startVol = 0f, Ease ease = Ease.InOutSine)
+        => source.DOFade(vol, t).SetEase(ease).ChangeStartValue(startVol).SetUpdate(true);
 }
