@@ -8,11 +8,13 @@ public class Entity : MonoBehaviour
     [SerializeField] HealthBar healthBar;
     [SerializeField] float health = 0f;
     [SerializeField] float regenRate = 1f;
+    public bool invencibility = false;
     public float Health
     {
         get { return health; }
         set
         {
+            if (invencibility && value < health) return;
             health = Mathf.Clamp(value, 0f, maxHealth);
             float h = health / maxHealth;
             if(healthBar) healthBar.UpdateValue(h);
@@ -29,7 +31,7 @@ public class Entity : MonoBehaviour
     [SerializeField] float maxHealth = 100f;
     public float MaxHealth => maxHealth;
 
-    private void Awake()
+    private void Start()
     {
         if (healthBar == null) {
             healthBar = Instantiate(PrefabHolder.Instance.HealthBarPrefab);
