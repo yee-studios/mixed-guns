@@ -1,17 +1,18 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 enum PowerCrateType {
     Random,
     FullVision,
-    DoubleSpeed
+    SpeedBoost
 }
 
 public class PowerCrate : MonoBehaviour
 {
     public int fullVisionTime = 30;
-    public int doubleSpeedTime = 30;
+    public int speedBoostTime = 30;
     
     [SerializeField] PowerCrateType powerCrateType = PowerCrateType.Random;
     private SpriteRenderer fillingRenderer;
@@ -33,7 +34,7 @@ public class PowerCrate : MonoBehaviour
                 fillingRenderer.color = Color.yellow;
                 break;
             
-            case PowerCrateType.DoubleSpeed:
+            case PowerCrateType.SpeedBoost:
                 fillingRenderer.color = Color.blue;
                 break;
         }
@@ -47,12 +48,12 @@ public class PowerCrate : MonoBehaviour
         {
             case PowerCrateType.FullVision:
                 player.fullVisionTimeRemaining = fullVisionTime;
-                ScreenAnnouncements.SpawnAnnouncement("FULL VISION!1!!");
+                ScreenAnnouncements.SpawnAnnouncement($"+{fullVisionTime}s Full Vision!");
                 break;
             
-            case PowerCrateType.DoubleSpeed:
-                player.speedBoostTimeRemaining = doubleSpeedTime;
-                ScreenAnnouncements.SpawnAnnouncement("gotta go faaast!");
+            case PowerCrateType.SpeedBoost:
+                player.speedBoostTimeRemaining = speedBoostTime;
+                ScreenAnnouncements.SpawnAnnouncement($"+{speedBoostTime}s Speed Boost!");
                 break;
         }
     }

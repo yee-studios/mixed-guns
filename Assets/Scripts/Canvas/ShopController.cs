@@ -77,7 +77,7 @@ public class ShopController : Singleton<ShopController>
                 break;
             case "dashes":
                 player.maxDashes++;
-                ScreenAnnouncements.SpawnAnnouncement("Dashes incremented to " + player.maxDashes);
+                ScreenAnnouncements.SpawnAnnouncement($"Max dashes are now {player.maxDashes}");
                 item.info.cost *= 2;
                 break;
             default:
