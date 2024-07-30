@@ -8,13 +8,18 @@ public enum BulletType
 
 public class Bullet : MonoBehaviour
 {
+    [Header("Bullet Properties")]
     public GunController gun;
     Rigidbody2D rb;
     public BulletType type;
     public float speed = 1000f;
     [SerializeField] float destroyTime = 10f;
+    
+    [Header("Explosive")]
+    [SerializeField] private GameObject explodeEffect;
     [SerializeField] float explodeDamage = 25f;
     [SerializeField] float explodeRadius = 3f;
+    
     bool hit = false;
 
     private void Awake()
@@ -46,6 +51,8 @@ public class Bullet : MonoBehaviour
 
     void Explode()
     {
+        GameObject effect = Instantiate(explodeEffect, transform.position, Quaternion.identity);
+        Destroy(effect, 5f);
         foreach (var col in Physics2D.OverlapCircleAll(transform.position, explodeRadius))
         {
             Entity e = col.GetComponent<Entity>();

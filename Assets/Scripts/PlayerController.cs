@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : Singleton<PlayerController>
@@ -26,6 +27,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] int maxDashes = 3;
     public int MaxDashes => maxDashes;
     [SerializeField] float dashReloadTime = 1f;
+    [SerializeField] float dashCooldown = 1f;
     [SerializeField] float currentDashReload = 0f;
     
     [Header("Lightning")]
@@ -67,6 +69,8 @@ public class PlayerController : Singleton<PlayerController>
     bool doubleSpeed;
     bool fullVision;
     bool fullVisionTweenInProgress;
+    float timeSinceLastDash;
+    Image dashCooldownImage;
 
     #region Unity methods
     protected override void Awake()
@@ -77,6 +81,7 @@ public class PlayerController : Singleton<PlayerController>
         entity = GetComponent<Entity>();
         entity.OnDied.AddListener(OnDied);
         camNoise = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        dashCooldownImage = DashChargeUIController.Instance.transform.Find("ChargeCooldown").GetComponent<Image>();
         StartCoroutine(EverySecond());
     }
 
@@ -118,6 +123,10 @@ public class PlayerController : Singleton<PlayerController>
 #endif
         if (ShopController.Instance.shopOpen) return;
 
+        timeSinceLastDash += Time.deltaTime;
+        
+        dashCooldownImage.fillAmount = 1 - (timeSinceLastDash / dashCooldown);
+        
         HandleCameraNoise();
 
         LastPosition = transform.position;
@@ -188,7 +197,8 @@ public class PlayerController : Singleton<PlayerController>
     {
         if (availableDashes < maxDashes)
         {
-            currentDashReload += Time.deltaTime;
+            if (timeSinceLastDash >= dashCooldown) currentDashReload += Time.deltaTime;
+            
             if (currentDashReload >= dashReloadTime)
             {
                 currentDashReload = 0f;
@@ -211,6 +221,7 @@ public class PlayerController : Singleton<PlayerController>
         audioSource.PlayOneShot(AudioClipsManager.Instance.Dash);
         rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
         availableDashes--;
+        timeSinceLastDash = 0f;
     }
 
     private void HandleCameraNoise()
