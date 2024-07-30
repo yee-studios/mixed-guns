@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System;
 using UnityEditorInternal.Profiling.Memory.Experimental;
 using Random = UnityEngine.Random;
+using System.Globalization;
 
 [Serializable]
 public struct ShopItemInfo
@@ -58,29 +59,47 @@ public class ShopController : Singleton<ShopController>
 
     void Selected(ShopItem item)
     {
+        if (CoinsManager.Instance.Coins < item.info.cost) return;
+        CoinsManager.Instance.Coins -= item.info.cost;
         PlayerController player = PlayerController.Instance;
+        string text;
         switch (item.info.id) {
-            case "firemode":
-                if(player.Gun.FireMode == FireMode.Semi)
-                {
-                    player.Gun.FireMode = FireMode.Burst;
-                    item.info.cost = 50;
-                    item.UpdateInfo();
-                    ScreenAnnouncements.SpawnAnnouncement("Burst fire mode!");
-                } else if (player.Gun.FireMode == FireMode.Burst)
-                {
-                    player.Gun.FireMode = FireMode.Auto;
-                    item.info.cost = -1;
-                    item.UpdateInfo();
-                    ScreenAnnouncements.SpawnAnnouncement("Automatic fire mode!");
-                }
+            case "firerate":
+                player.Gun.fireRate -= 0.05f;
+                ScreenAnnouncements.SpawnAnnouncement($"Fire rate is now {player.Gun.fireRate.ToString("F2", CultureInfo.InvariantCulture)}");
+                if(Mathf.Round(player.Gun.fireRate*100f)/100f <= 0.05f) item.info.cost = -1;
+                else item.info.cost *= 2;
+                item.UpdateInfo();
                 break;
             case "dashes":
-                player.maxDashes++;
-                ScreenAnnouncements.SpawnAnnouncement($"Max dashes are now {player.maxDashes}");
+                player.MaxDashes++;
+                text = $"Max dashes are now {player.MaxDashes}";
+                if (player.MaxDashes <= 1) text += $"\nPress Shift to dash!";
+                ScreenAnnouncements.SpawnAnnouncement(text);
                 item.info.cost *= 2;
+                item.UpdateInfo();
+                break;
+            case "explosive":
+                player.availableBulletTypes.Add(BulletType.Explosive);
+                player.Gun.bulletType = BulletType.Explosive;
+                text = $"Enemies now explode when dying!";
+                if (player.availableBulletTypes.Count >= 2) text += $"\nPress {input.actions["switchfiremode"].GetBindingDisplayString()} to switch between bullet types!";
+                ScreenAnnouncements.SpawnAnnouncement(text);
+                item.info.cost = -1;
+                item.UpdateInfo();
+                break;
+            case "freezing":
+                player.availableBulletTypes.Add(BulletType.Freezing);
+                player.Gun.bulletType = BulletType.Freezing;
+                text = $"Bullets now slow enemies!";
+                if (player.availableBulletTypes.Count >= 2)
+                    text += $"\nPress {input.actions["switchfiremode"].GetBindingDisplayString()} to switch between bullet types!";
+                ScreenAnnouncements.SpawnAnnouncement(text);
+                item.info.cost = -1;
+                item.UpdateInfo();
                 break;
             default:
+                ScreenAnnouncements.SpawnAnnouncement($"Could not buy {item.info.title}");
                 break;
         }
         UpdateItemButtons();

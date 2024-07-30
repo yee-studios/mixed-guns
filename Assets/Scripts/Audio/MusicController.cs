@@ -46,7 +46,7 @@ public class MusicController : Singleton<MusicController>
         Entity e = PlayerController.Instance?.Entity;
         if(e) {
             float h = e.Health / e.MaxHealth;
-            mixAmount = 1f - h; //Mathf.Lerp(mixAmount, 1f-h, fadeRatio*Time.deltaTime);
+            mixAmount = Mathf.Clamp01((1f-h)*1.25f); //Mathf.Lerp(mixAmount, 1f-h, fadeRatio*Time.deltaTime);
         }
         float vol = Mathf.Lerp(fullSource.volume, mixAmount, fadeRatio * Time.deltaTime);
         fullSource.volume = vol*volume;

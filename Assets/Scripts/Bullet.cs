@@ -3,7 +3,8 @@
 public enum BulletType
 {
     Normal,
-    Explosive
+    Explosive,
+    Freezing,
 }
 
 public class Bullet : MonoBehaviour
@@ -37,8 +38,6 @@ public class Bullet : MonoBehaviour
     {
         if (hit) return;
         hit = true;
-        
-        if (type == BulletType.Explosive) Explode();
 
         Destroy(gameObject);
 
@@ -50,18 +49,21 @@ public class Bullet : MonoBehaviour
         if (!e) return;
         float dmg = Random.Range(gun.MinDamage, gun.MaxDamage);
         e.Health -= dmg;
-
-        SmallText.Appear(transform.position, Mathf.RoundToInt(dmg).ToString());
+        if (e.Health <= 0 && type != BulletType.Normal) Explode();
     }
 
     void Explode()
     {
-        Instantiate(PrefabHolder.Instance.Explosion, transform.position, Quaternion.identity);
+        Entity pe = PlayerController.Instance.Entity;
+        Instantiate(type == BulletType.Explosive ? PrefabHolder.Instance.Explosion : PrefabHolder.Instance.FreezingParticles,
+            transform.position, Quaternion.identity);
         foreach (var col in Physics2D.OverlapCircleAll(transform.position, explodeRadius))
         {
             Entity e = col.GetComponent<Entity>();
-            if (!e) continue;
+            if (!e || e == pe) continue;
             e.Health -= explodeDamage;
+            if (type == BulletType.Freezing && e.TryGetComponent(out Enemy enemy)
+                && enemy.type != EnemyType.Ice) enemy.SlowDown();
         }
     }
     

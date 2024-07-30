@@ -13,6 +13,7 @@ public class PrefabHolder : PersistentSingleton<PrefabHolder>
 
     [Tooltip("This prefab also contains an AudioSource that plays an explosion sound.")]
     [field: SerializeField] public ParticleSystem Explosion { get; private set; }
+    [field: SerializeField] public ParticleSystem FreezingParticles { get; private set; }
 
     [field: Header("UI")]
     [field: SerializeField] public ShopItem ShopItemPrefab { get; private set; }

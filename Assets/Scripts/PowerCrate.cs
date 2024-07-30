@@ -42,18 +42,19 @@ public class PowerCrate : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (!gameObject.scene.isLoaded) return;
         PlayerController player = PlayerController.Instance;
         if (!player) return;
         switch (powerCrateType)
         {
             case PowerCrateType.FullVision:
                 player.fullVisionTimeRemaining = fullVisionTime;
-                ScreenAnnouncements.SpawnAnnouncement($"+{fullVisionTime}s Full Vision!");
+                SmallText.Appear(transform.position, $"+{fullVisionTime}s Full Vision!", Color.yellow);
                 break;
             
             case PowerCrateType.SpeedBoost:
                 player.speedBoostTimeRemaining = speedBoostTime;
-                ScreenAnnouncements.SpawnAnnouncement($"+{speedBoostTime}s Speed Boost!");
+                SmallText.Appear(transform.position, $"+{speedBoostTime}s Speed Boost!", Color.cyan);
                 break;
         }
     }

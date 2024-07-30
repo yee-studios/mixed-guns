@@ -24,8 +24,10 @@ public class SmallText : MonoBehaviour
         Destroy(gameObject, t);
     }
 
-    internal static void Appear(Vector3 position, string text)
+    internal static void Appear(Vector3 position, string text, Color color)
     {
-        Instantiate(PrefabHolder.Instance.SmallText, position, Quaternion.identity).text = text;
+        SmallText _text = Instantiate(PrefabHolder.Instance.SmallText, position, Quaternion.identity);
+        _text._text.color = color;
+        _text.text = text;
     }
 }

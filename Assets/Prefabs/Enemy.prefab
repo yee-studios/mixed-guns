@@ -114,6 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be0b3bd0044af5c4f96bbf88b88841a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fill: {fileID: 3254562543678848570}
   hitRate: 0.5
   hitDamage: 10
 --- !u!114 &5446526605682381407
@@ -378,6 +379,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: -8435245712485981826, guid: 14d32648ec8c9644ab167ba82c0efaf5, type: 3}
+--- !u!212 &3254562543678848570 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: -133837721322507507, guid: 14d32648ec8c9644ab167ba82c0efaf5, type: 3}
+  m_PrefabInstance: {fileID: 5984725554333666615}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4493327925444784698 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7878350319992209165, guid: 14d32648ec8c9644ab167ba82c0efaf5, type: 3}

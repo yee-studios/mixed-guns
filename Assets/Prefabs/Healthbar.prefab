@@ -53,7 +53,7 @@ MonoBehaviour:
   target: {fileID: 0}
   offset: {x: 0, y: -0.75, z: 0}
   fill: {fileID: 1923841877963236768}
-  lerpSpeed: 10
+  lerpSpeed: 25
 --- !u!1 &3632232370511448701
 GameObject:
   m_ObjectHideFlags: 0

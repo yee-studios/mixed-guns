@@ -4,8 +4,10 @@ using UnityEngine;
 public class EntityMaxSpawner : MonoBehaviour
 {
     [SerializeField] GameObject entityPrefab;
-    [SerializeField] float spawnRate = 1f;
-    [SerializeField] int maxEntities = 5;
+    [SerializeField] float spawnRate = 5f;
+    [SerializeField] float spawnRateMinus = 0.25f;
+    [SerializeField] int maxEntities = 1;
+    [SerializeField] int maxEntitiesPlus = 1;
     [SerializeField] List<GameObject> entities;
     [SerializeField] float r = 50f;
     [SerializeField] float lastSpawn = 0f;
@@ -20,7 +22,12 @@ public class EntityMaxSpawner : MonoBehaviour
         lastSpawn = now;
         Vector3 randomPos = transform.position + new Vector3(Random.Range(-r, r), Random.Range(-r, r));
         GameObject entity = Instantiate(entityPrefab, randomPos.normalized * Random.Range(-r, r), Quaternion.identity);
-        entity.GetComponent<Entity>().OnDied.AddListener(() => entities.Remove(entity));
+        entity.GetComponent<Entity>().OnDied.AddListener(() =>
+        {
+            entities.Remove(entity);
+            spawnRate -= spawnRateMinus;
+            maxEntities += maxEntitiesPlus;
+        });
         entities.Add(entity);
     }
 

@@ -21,8 +21,8 @@ public class DeathScreen : Singleton<DeathScreen>
         hoverEvents.onPointerExit.AddListener(() => BreatheOut());
     }
 
-    public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn);
-    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathOut);
+    public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn, 1f, 0.5f);
+    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathOut, 1f, 0.5f);
 
     void OnClick()
     {

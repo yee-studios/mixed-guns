@@ -10,10 +10,7 @@ public class DashChargeUIController : Singleton<DashChargeUIController>
     [SerializeField] Vector2 offset = new Vector2(10, 0);
     [SerializeField] Vector2 startPos = new Vector2(25, 25);
     [field: SerializeField] public Image cooldownFill { get; private set; }
-
-    #region Cache
     List<ChargeUIUnit> chargeUnits = new();
-    #endregion
 
     public void UpdateUnits(int currentDash, float amount)
     {
@@ -29,7 +26,14 @@ public class DashChargeUIController : Singleton<DashChargeUIController>
 
     protected void Start()
     {
-        for (int i = 0; i < PlayerController.Instance.maxDashes; i++)
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        for (int i = 0; i < transform.childCount; i++) Destroy(transform.GetChild(0).gameObject);
+        chargeUnits.Clear();
+        for (int i = 0; i < PlayerController.Instance.MaxDashes; i++)
         {
             ChargeUIUnit unit = Instantiate(dashChargePrefab, transform);
             unit.transform.position = startPos + (offset * i);

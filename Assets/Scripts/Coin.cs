@@ -32,6 +32,7 @@ public class Coin : MonoBehaviour
         rb.AddForce(new Vector2(Random.Range(-r, r), Random.Range(-r, r))+Vector2.up*r, ForceMode2D.Impulse);
         PlayerController.Instance.Entity.Health += Random.Range(5f, 15f);
         CoinsManager.Instance.Coins += 20;
+        SmallText.Appear(transform.position, "+20 coins!", Color.yellow);
         Destroy(gameObject, 5f);
     }
 }

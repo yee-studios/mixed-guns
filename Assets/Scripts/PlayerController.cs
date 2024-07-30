@@ -1,7 +1,10 @@
 ﻿using Cinemachine;
 using DG.Tweening;
 using DG.Tweening.Core;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -25,7 +28,12 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float moveSpeed = 10f;
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
-    public int maxDashes = 3;
+
+    int maxDashes;
+    public int MaxDashes { get { return maxDashes; } set {
+            maxDashes = value;
+            DashChargeUIController.Instance?.UpdateUI();
+        } }
     [SerializeField] float dashReloadTime = 1f;
     [SerializeField] float dashCooldown = 1f;
     [SerializeField] float currentDashReload = 0f;
@@ -51,6 +59,7 @@ public class PlayerController : Singleton<PlayerController>
     public int speedBoostTimeRemaining;
     public int fullVisionTimeRemaining;
 
+    public List<BulletType> availableBulletTypes = new();
     
     public bool startAnimation { private set; get; }
 
@@ -160,7 +169,14 @@ public class PlayerController : Singleton<PlayerController>
 
         if(Gun != null)
         {
-            if (input.actions["switchfiremode"].WasPressedThisFrame()) Gun.SwitchFireMode();
+            if (input.actions["switchfiremode"].WasPressedThisFrame() && availableBulletTypes.Count >= 2)
+            {
+                Gun.bulletType = Gun.bulletType == BulletType.Explosive ? BulletType.Freezing : BulletType.Explosive;
+                SmallText.Appear(transform.position, $"Switched to {Gun.bulletType}", Color.white);
+            }
+            //#if UNITY_EDITOR
+            //if (input.actions["switchfiremode"].WasPressedThisFrame()) Gun.SwitchFireMode();
+            //#endif
             bool trig = input.actions["shoot"].IsPressed();
             if (Gun.triggerStatus != trig) Gun.UpdateTrigger(trig);
         }
@@ -201,9 +217,9 @@ public class PlayerController : Singleton<PlayerController>
         timeSinceLastDash += Time.deltaTime;
         dashCooldownFill.fillAmount = 1f - (timeSinceLastDash / dashCooldown);
 
-        if (availableDashes < maxDashes)
+        if (availableDashes < MaxDashes)
         {
-            //if (timeSinceLastDash >= dashCooldown)
+            if (timeSinceLastDash >= dashCooldown)
                 currentDashReload += Time.deltaTime;
             
             if (currentDashReload >= dashReloadTime)
@@ -221,7 +237,7 @@ public class PlayerController : Singleton<PlayerController>
         if (availableDashes <= 0 || lastMove.magnitude <= 0)
         {
             audioSource.PlayOneShot(AudioClipsManager.Instance.CantDash);
-            Instantiate(fart, transform.position, transform.rotation);
+            //Instantiate(fart, transform.position, transform.rotation);
             return;
         }
 

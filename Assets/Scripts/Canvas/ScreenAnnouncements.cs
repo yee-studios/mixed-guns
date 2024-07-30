@@ -14,6 +14,7 @@ public class ScreenAnnouncements : Singleton<ScreenAnnouncements>
 
     public static void SpawnAnnouncement(string text, float t = 3f)
     {
+        if (!Instance) return;
         ScreenAnnouncement announcement = Instantiate(Instance.prefab, Instance.transform);
         announcement.text.text = text;
         announcement.transform.DOLocalMoveY(-100f, t).ChangeStartValue(new Vector3(0, 100f, 0)).SetUpdate(true);

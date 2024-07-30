@@ -24,7 +24,7 @@ public class GunController : MonoBehaviour
     public bool triggerStatus = false;
     AudioSource audioSource;
 
-    [SerializeField] float fireRate = 0.25f;
+    public float fireRate = 0.25f;
     [SerializeField] int burstAmount = 3;
     [SerializeField] float rotationSmooth = 10f;
     [SerializeField] float lightExpansionWhenShooting = 1f;
