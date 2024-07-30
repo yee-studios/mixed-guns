@@ -25,8 +25,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float moveSpeed = 10f;
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
-    [SerializeField] int maxDashes = 3;
-    public int MaxDashes => maxDashes;
+    public int maxDashes = 3;
     [SerializeField] float dashReloadTime = 1f;
     [SerializeField] float dashCooldown = 1f;
     [SerializeField] float currentDashReload = 0f;

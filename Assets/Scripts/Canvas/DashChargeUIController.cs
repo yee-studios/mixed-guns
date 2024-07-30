@@ -29,7 +29,7 @@ public class DashChargeUIController : Singleton<DashChargeUIController>
 
     protected void Start()
     {
-        for (int i = 0; i < PlayerController.Instance.MaxDashes; i++)
+        for (int i = 0; i < PlayerController.Instance.maxDashes; i++)
         {
             ChargeUIUnit unit = Instantiate(dashChargePrefab, transform);
             unit.transform.position = startPos + (offset * i);

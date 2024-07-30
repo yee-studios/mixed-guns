@@ -8,13 +8,7 @@ using UnityEngine.UI;
 [Serializable]
 public class ShopItem : MonoBehaviour
 {
-    ShopItemInfo info;
-    public ShopItemInfo Info { get { return info; } set {
-            info = value;
-            cost = info.cost;
-            title.text = info.title;
-            description.text = info.description;
-        } }
+    public ShopItemInfo info;
     public RectTransform Rect { private set; get; }
     public UnityEvent onSelect;
     [field: SerializeField] public Button selectButton { private set; get; }
@@ -22,7 +16,6 @@ public class ShopItem : MonoBehaviour
     [field: SerializeField] public TextMeshProUGUI description { private set; get; }
     [field: SerializeField] public TextMeshProUGUI buttonText { private set; get; }
     internal ButtonHoverEvents hoverEvents;
-    public int cost = 0;
     private void Awake()
     {
         Rect = GetComponent<RectTransform>();
@@ -33,12 +26,13 @@ public class ShopItem : MonoBehaviour
         hoverEvents.onPointerExit.AddListener(() => buttonText.text = GetButtonText());
     }
 
-    public string GetButtonText() => cost == 0 ? "Free" : cost < 0 ? "" : cost.ToString();
+    public string GetButtonText() => info.cost == 0 ? "Free" : info.cost < 0 ? "" : info.cost.ToString();
 
-    internal void UpdateInfo(int cost)
+    internal void UpdateInfo()
     {
-        this.cost = cost;
-        if (cost < 0)
+        title.text = info.title;
+        description.text = info.description;
+        if (info.cost < 0)
         {
             hoverEvents.onPointerEnter.RemoveAllListeners();
             hoverEvents.onPointerExit.RemoveAllListeners();

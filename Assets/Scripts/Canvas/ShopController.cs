@@ -11,10 +11,10 @@ using Random = UnityEngine.Random;
 [Serializable]
 public struct ShopItemInfo
 {
-    [field: SerializeField] public string id { private set; get; }
-    [field: SerializeField] public string title { private set; get; }
-    [field: SerializeField] public string description { private set; get; }
-    [field: SerializeField] public int cost { private set; get; }
+    [field: SerializeField] public string id { set; get; }
+    [field: SerializeField] public string title { set; get; }
+    [field: SerializeField] public string description { set; get; }
+    [field: SerializeField] public int cost { set; get; }
 }
 
 public class ShopController : Singleton<ShopController>
@@ -43,7 +43,8 @@ public class ShopController : Singleton<ShopController>
             itemsContainer.sizeDelta = new Vector2(0, itemsCount * newItem.Rect.rect.height + offset * itemsCount);
 
             ShopItemInfo info = items[i];
-            newItem.Info = info;
+            newItem.info = info;
+            newItem.UpdateInfo();
 
             newItem.onSelect.AddListener(() => Selected(newItem));
         }
@@ -58,19 +59,26 @@ public class ShopController : Singleton<ShopController>
     void Selected(ShopItem item)
     {
         PlayerController player = PlayerController.Instance;
-        switch (item.Info.id) {
+        switch (item.info.id) {
             case "firemode":
                 if(player.Gun.FireMode == FireMode.Semi)
                 {
                     player.Gun.FireMode = FireMode.Burst;
-                    item.UpdateInfo(50);
+                    item.info.cost = 50;
+                    item.UpdateInfo();
                     ScreenAnnouncements.SpawnAnnouncement("Burst fire mode!");
                 } else if (player.Gun.FireMode == FireMode.Burst)
                 {
                     player.Gun.FireMode = FireMode.Auto;
-                    item.UpdateInfo(-1);
+                    item.info.cost = -1;
+                    item.UpdateInfo();
                     ScreenAnnouncements.SpawnAnnouncement("Automatic fire mode!");
                 }
+                break;
+            case "dashes":
+                player.maxDashes++;
+                ScreenAnnouncements.SpawnAnnouncement("Dashes incremented to " + player.maxDashes);
+                item.info.cost *= 2;
                 break;
             default:
                 break;
@@ -81,7 +89,7 @@ public class ShopController : Singleton<ShopController>
     void UpdateItemButtons() {
         foreach(ShopItem item in shopItems)
         {
-            int cost = item.cost;
+            int cost = item.info.cost;
             /*
             if (cost > 0) item.buttonText.text = cost.ToString();
             else if (cost == 0) item.buttonText.text = "Free";
