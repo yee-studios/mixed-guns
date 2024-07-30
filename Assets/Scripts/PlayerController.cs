@@ -77,6 +77,7 @@ public class PlayerController : Singleton<PlayerController>
     [field: SerializeField] public GunController Gun { get; private set; }
 
     [SerializeField] float debugDeathTime = 0f;
+    public int kills = 0;
     #endregion
 
     bool speedBoost;

@@ -13,6 +13,7 @@ public class MusicController : Singleton<MusicController>
     [SerializeField, Range(0f, 1f)]
     float mixAmount = 0f;
     [SerializeField] float fadeRatio = 10f;
+    [SerializeField, Range(0f, 1f)]
     float volume = 1f;
     Tween shopTween;
 
@@ -26,17 +27,24 @@ public class MusicController : Singleton<MusicController>
 
     public void DeathMusic()
     {
-        fullSource.DOPitch(0f, 1f);
-        instSource.DOPitch(0f, 1f);
+        //fullSource.DOPitch(0f, 1f).SetUpdate(true);
+        //instSource.DOPitch(0f, 1f).SetUpdate(true);
+        DOTween.To(() => volume, x => volume = x, 0f, 1f).SetUpdate(true);
         deathSource.Play();
         Fade(deathSource);
     }
 
     public void ShopMusic(bool toggle)
     {
-        fullSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
-        instSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
+        //fullSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
+        //instSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
+        DOTween.To(() => volume, x => volume = x, toggle ? 0f : 1f, 1f).SetUpdate(true);
         if (toggle) shopSource.Play();
+        else
+        {
+            if(!fullSource.isPlaying) fullSource.Play();
+            if (!instSource.isPlaying) instSource.Play();
+        }
         if (shopTween != null && shopTween.active) shopTween.Kill(false);
         shopTween = Fade(shopSource, 1f, toggle ? 1f : 0f, toggle ? 0f : 1f).OnComplete(() => { if (!toggle) shopSource.Stop(); });
     }
