@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -47,7 +48,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float cameraMaxSize = 5f;
     
     [Header("Powerups")]
-    public int doubleSpeedTimeRemaining;
+    public float speedBoostMultiplier = 1.5f;
+    public int speedBoostTimeRemaining;
     public int fullVisionTimeRemaining;
 
     
@@ -66,7 +68,7 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] float debugDeathTime = 0f;
     #endregion
     
-    bool doubleSpeed;
+    bool speedBoost;
     bool fullVision;
     bool fullVisionTweenInProgress;
     float timeSinceLastDash;
@@ -133,7 +135,7 @@ public class PlayerController : Singleton<PlayerController>
         surroundingLight.transform.position = Vector3.Lerp(surroundingLight.transform.position, transform.position, 10f * Time.deltaTime);
 
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
-        rb.AddForce(moveSpeed * 1000 * (doubleSpeed ? 2 : 1) * Time.deltaTime * move);
+        rb.AddForce(moveSpeed * 1000 * (speedBoost ? speedBoostMultiplier : 1) * Time.deltaTime * move);
         lastMove = move;
         movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude) * constantSoundVolume, 10f*Time.deltaTime);
         movingAudio.pitch = Mathf.Lerp(movingAudio.pitch, Mathf.Clamp01(move.magnitude), 10f * Time.deltaTime);
@@ -158,8 +160,8 @@ public class PlayerController : Singleton<PlayerController>
             if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
         
-        if (doubleSpeedTimeRemaining > 0 && !doubleSpeed) doubleSpeed = true;
-        else if (doubleSpeedTimeRemaining <= 0 && doubleSpeed) doubleSpeed = false;
+        if (speedBoostTimeRemaining > 0 && !speedBoost) speedBoost = true;
+        else if (speedBoostTimeRemaining <= 0 && speedBoost) speedBoost = false;
 
         if (fullVisionTimeRemaining > 0) {
             if (fullVision) return;
@@ -236,7 +238,7 @@ public class PlayerController : Singleton<PlayerController>
     IEnumerator EverySecond() {
         for (;;)
         {
-            if (doubleSpeedTimeRemaining > 0) doubleSpeedTimeRemaining -= 1;
+            if (speedBoostTimeRemaining > 0) speedBoostTimeRemaining -= 1;
             if (fullVisionTimeRemaining > 0) fullVisionTimeRemaining -= 1;
             yield return new WaitForSeconds(1);
         }

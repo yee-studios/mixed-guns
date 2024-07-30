@@ -49,7 +49,7 @@ public class PowerCrate : MonoBehaviour
                 break;
             
             case PowerCrateType.DoubleSpeed:
-                p.doubleSpeedTimeRemaining = doubleSpeedTime;
+                p.speedBoostTimeRemaining = doubleSpeedTime;
                 break;
         }
     }
