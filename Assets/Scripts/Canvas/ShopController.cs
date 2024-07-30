@@ -5,8 +5,6 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections.Generic;
 using System;
-using UnityEditorInternal.Profiling.Memory.Experimental;
-using Random = UnityEngine.Random;
 using System.Globalization;
 
 [Serializable]
