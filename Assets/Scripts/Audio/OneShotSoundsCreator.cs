@@ -1,10 +1,5 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
-using static UnityEditor.PlayerSettings;
 
 public class OneShotSoundsCreator : PersistentSingleton<OneShotSoundsCreator>
 {

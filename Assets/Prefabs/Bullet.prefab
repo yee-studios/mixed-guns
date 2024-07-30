@@ -160,7 +160,7 @@ CircleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -196,6 +196,9 @@ MonoBehaviour:
   type: 0
   speed: 1000
   destroyTime: 10
+  explodeEffect: {fileID: 87428574658206537, guid: d058faaedc7144c46bb83ce677300af9, type: 3}
+  explodeDamage: 25
+  explodeRadius: 3
 --- !u!1 &4430281728887041587
 GameObject:
   m_ObjectHideFlags: 0

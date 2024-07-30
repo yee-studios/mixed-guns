@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
-using DG.Tweening.Core;
 
 public class ShopController : Singleton<ShopController>
 {
@@ -42,6 +39,7 @@ public class ShopController : Singleton<ShopController>
     private void Update()
     {
         PlayerController player = PlayerController.Instance;
+        if (shopOpen && !player) ToggleShop();
         if(!player || player.startAnimation || !input.actions["shop"].WasPressedThisFrame()) return;
         ToggleShop();
     }

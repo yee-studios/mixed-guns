@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(AudioSource))]
@@ -81,7 +79,10 @@ public class GunController : MonoBehaviour
 
     private void Shoot()
     {
-        PlayerController.Instance.surroundingLight.pointLightOuterRadius += lightExpansionWhenShooting;
+        float pointLightOuterRadius = PlayerController.Instance.surroundingLight.pointLightOuterRadius;
+        DOTween.To(() => PlayerController.Instance.surroundingLight.pointLightOuterRadius,
+            x => PlayerController.Instance.surroundingLight.pointLightOuterRadius = x,
+            pointLightOuterRadius += lightExpansionWhenShooting, 1);
         audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
         Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
         b.speed = bulletSpeed;

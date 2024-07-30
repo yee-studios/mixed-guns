@@ -1,17 +1,16 @@
 using Cinemachine;
 using DG.Tweening;
-using System;
+using DG.Tweening.Core;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : Singleton<PlayerController>
 {
-    #region cached components
+    #region Cached components
     Rigidbody2D rb;
     PlayerInput input;
     AudioSource audioSource;
@@ -21,42 +20,61 @@ public class PlayerController : Singleton<PlayerController>
     public Vector2 LastPosition { get; private set; }
     #endregion
 
-
-    [Header("Dashes")]
+    #region Unity fields
+    [Header("Movement")]
+    [SerializeField] float moveSpeed = 10f;
     [SerializeField] float dashForce = 1000f;
     [SerializeField] int availableDashes = 0;
     [SerializeField] int maxDashes = 3;
-    [SerializeField] bool dashesEnabled = false;
-
-    [Header("Parameters")]
-    [SerializeField] float moveSpeed = 10f;
+    public int MaxDashes => maxDashes;
+    [SerializeField] float dashReloadTime = 1f;
+    [SerializeField] float dashCooldown = 1f;
+    [SerializeField] float currentDashReload = 0f;
+    
+    [Header("Lightning")]
     [Range(0f,1f)]
-    [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] float lightReductionRate = 0.25f;
     [SerializeField] float minLightOuter = 3f;
+    [SerializeField] float maxLightOuter = 8f;
+    public Light2D flashLight;
+    public Light2D surroundingLight;
+    
+    [Header("Camera")]
     [Range(0f, 5f)]
     [SerializeField] float screenShakeIntensity = 1.5f;
+    [SerializeField] CinemachineVirtualCamera cinemachineVirtualCamera;
+    CinemachineBasicMultiChannelPerlin camNoise;
+    [SerializeField] float cameraMinSize = 4f;
+    [SerializeField] float cameraMaxSize = 5f;
+    
+    [Header("Powerups")]
+    public float speedBoostMultiplier = 1.5f;
+    public int speedBoostTimeRemaining;
+    public int fullVisionTimeRemaining;
+
+    
     public bool startAnimation { private set; get; }
 
-    [Header("Audio Sources")]
+    [Header("Audio")]
+    [SerializeField] float constantSoundVolume = 0.25f;
     [SerializeField] AudioSource movingAudio;
     [SerializeField] AudioSource rotatingAudio;
 
     [SerializeField] ParticleSystem fart;
-    [SerializeField] CinemachineVirtualCamera cinemachineVirtualCamera;
-    CinemachineBasicMultiChannelPerlin cam_noise;
 
+    [Header("Other")]
     [SerializeField] GunController gun;
-    public Light2D flashLight;
-    public Light2D surroundingLight;
-
-    public int MaxDashes => maxDashes;
-    [SerializeField] float dashReloadTime = 1f;
-    [SerializeField] float currentDashReload = 0f;
 
     [SerializeField] float debugDeathTime = 0f;
+    #endregion
 
-    #region unity methods
+    bool speedBoost;
+    bool fullVision;
+    Tween fullVisionTweenInProgress;
+    float timeSinceLastDash;
+    Image dashCooldownFill;
+
+    #region Unity methods
     protected override void Awake()
     {
         base.Awake();
@@ -64,35 +82,37 @@ public class PlayerController : Singleton<PlayerController>
         audioSource = GetComponent<AudioSource>();
         entity = GetComponent<Entity>();
         entity.OnDied.AddListener(OnDied);
-        cam_noise = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        camNoise = cinemachineVirtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        StartCoroutine(EverySecond());
     }
 
-    float d1 = 3f;
-    float d2 = .25f;
+    readonly float delay1 = 3f;
+    readonly float delay2 = .25f;
 
     protected void Start()
     {
         input = FindObjectOfType<PlayerInput>();
+        dashCooldownFill = DashChargeUIController.Instance.cooldownFill;
         startAnimation = true;
         entity.invencibility = true;
-        EnemySpawner.Instance.enabled = false;
-        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, d1)
-            .ChangeStartValue(1f).SetDelay(d2)
+        //EnemySpawner.Instance.enabled = false;
+        DOTween.To(() => surroundingLight.falloffIntensity, x => surroundingLight.falloffIntensity = x, 0.5f, delay1)
+            .ChangeStartValue(1f).SetDelay(delay2)
             .OnComplete(() => {
                 entity.invencibility = false;
                 startAnimation = false;
-                EnemySpawner.Instance.enabled = true;
+                //EnemySpawner.Instance.enabled = true;
             });    
 
-        DOTween.To(() => minLightOuter, x => minLightOuter = x, 3f, d1).ChangeStartValue(0f).SetDelay(d2);
+        DOTween.To(() => minLightOuter, x => minLightOuter = x, 3f, delay1).ChangeStartValue(0f).SetDelay(delay2);
         DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
-            surroundingLight.pointLightOuterRadius, d1).ChangeStartValue(0f).SetDelay(d2).SetUpdate(UpdateType.Late);
+            surroundingLight.pointLightOuterRadius, delay1).ChangeStartValue(0f).SetDelay(delay2).SetUpdate(UpdateType.Late);
 
-        DOTween.To(() => flashLight.falloffIntensity, x => flashLight.falloffIntensity = x, 0.5f, d1).ChangeStartValue(1f).SetDelay(d2);
+        DOTween.To(() => flashLight.falloffIntensity, x => flashLight.falloffIntensity = x, 0.5f, delay1).ChangeStartValue(1f).SetDelay(delay2);
         DOTween.To(() => flashLight.pointLightInnerRadius, x => flashLight.pointLightInnerRadius = x,
-            flashLight.pointLightInnerRadius, d1).ChangeStartValue(0f).SetDelay(d2);
+            flashLight.pointLightInnerRadius, delay1).ChangeStartValue(0f).SetDelay(delay2);
         DOTween.To(() => flashLight.pointLightOuterRadius, x => flashLight.pointLightOuterRadius = x,
-            flashLight.pointLightOuterRadius, d1).ChangeStartValue(0f).SetDelay(d2);
+            flashLight.pointLightOuterRadius, delay1).ChangeStartValue(0f).SetDelay(delay2);
     }
 
     void OnDied()
@@ -106,11 +126,11 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Update()
     {
+        if (ShopController.Instance.shopOpen) return;
+
 #if UNITY_EDITOR
         if (input.actions["die"].IsPressed()) entity.Health -= Time.deltaTime/debugDeathTime;
 #endif
-
-        if (ShopController.Instance.shopOpen) return;
 
         HandleCameraNoise();
 
@@ -118,7 +138,7 @@ public class PlayerController : Singleton<PlayerController>
         surroundingLight.transform.position = Vector3.Lerp(surroundingLight.transform.position, transform.position, 10f * Time.deltaTime);
 
         Vector2 move = input.actions["move"].ReadValue<Vector2>().normalized;
-        rb.AddForce(moveSpeed * Time.deltaTime * move);
+        rb.AddForce(moveSpeed * 1000 * (speedBoost ? speedBoostMultiplier : 1) * Time.deltaTime * move);
         lastMove = move;
         movingAudio.volume = Mathf.Lerp(movingAudio.volume, Mathf.Clamp01(move.magnitude) * constantSoundVolume, 10f*Time.deltaTime);
         movingAudio.pitch = Mathf.Lerp(movingAudio.pitch, Mathf.Clamp01(move.magnitude), 10f * Time.deltaTime);
@@ -142,20 +162,48 @@ public class PlayerController : Singleton<PlayerController>
             bool trig = input.actions["shoot"].IsPressed();
             if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
         }
+        
+        speedBoost = speedBoostTimeRemaining > 0 && !speedBoost;
 
-        surroundingLight.pointLightOuterRadius = Mathf.Clamp(
-            surroundingLight.pointLightOuterRadius-(Time.deltaTime*lightReductionRate), minLightOuter, Mathf.Infinity);
+        HandleFullVision();
     }
 
     #endregion
 
+    void HandleFullVision()
+    {
+        if (fullVisionTimeRemaining > 0)
+        {
+            if (fullVision) return;
+            fullVision = true;
+            DOTween.To(() => surroundingLight.pointLightOuterRadius, x => surroundingLight.pointLightOuterRadius = x,
+                100f, 2f);
+            return;
+        }
+        if (!fullVision)
+        {
+            surroundingLight.pointLightOuterRadius = Mathf.Clamp(
+                surroundingLight.pointLightOuterRadius - (Time.deltaTime * lightReductionRate), minLightOuter,
+                maxLightOuter);
+            return;
+        }
+
+        if (fullVisionTweenInProgress.active) return;
+        fullVisionTweenInProgress = DOTween.To(() => surroundingLight.pointLightOuterRadius,
+                x => surroundingLight.pointLightOuterRadius = x, minLightOuter, 1f)
+            .OnComplete(() => fullVision = false);
+    }
+
     void HandleDashes()
     {
-        if (!dashesEnabled) return;
+        timeSinceLastDash += Time.deltaTime;
+        dashCooldownFill.fillAmount = 1f - (timeSinceLastDash / dashCooldown);
 
         if (availableDashes < maxDashes)
         {
-            currentDashReload += Time.deltaTime;
+            //if (timeSinceLastDash >= dashCooldown)
+                currentDashReload += Time.deltaTime;
+            
             if (currentDashReload >= dashReloadTime)
             {
                 currentDashReload = 0f;
@@ -178,14 +226,24 @@ public class PlayerController : Singleton<PlayerController>
         audioSource.PlayOneShot(AudioClipsManager.Instance.Dash);
         rb.AddForce(dashForce * lastMove, ForceMode2D.Impulse);
         availableDashes--;
+        timeSinceLastDash = 0f;
     }
 
     private void HandleCameraNoise()
     {
         float healthDiff = entity.Health / entity.MaxHealth;
-        cinemachineVirtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(3f, 4f, healthDiff);
+        cinemachineVirtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(cameraMinSize, cameraMaxSize, healthDiff);
         float d = (1f-healthDiff) * screenShakeIntensity;
-        cam_noise.m_AmplitudeGain = d;
-        cam_noise.m_FrequencyGain = d;
+        camNoise.m_AmplitudeGain = d;
+        camNoise.m_FrequencyGain = d;
+    }
+
+    IEnumerator EverySecond() {
+        for (;;)
+        {
+            if (speedBoostTimeRemaining > 0) speedBoostTimeRemaining -= 1;
+            if (fullVisionTimeRemaining > 0) fullVisionTimeRemaining -= 1;
+            yield return new WaitForSeconds(1);
+        }
     }
 }

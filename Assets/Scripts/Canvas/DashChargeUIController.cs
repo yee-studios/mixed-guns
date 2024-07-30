@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DashChargeUIController : Singleton<DashChargeUIController>
 {
@@ -9,6 +9,7 @@ public class DashChargeUIController : Singleton<DashChargeUIController>
     [Header("Parameters")]
     [SerializeField] Vector2 offset = new Vector2(10, 0);
     [SerializeField] Vector2 startPos = new Vector2(25, 25);
+    [field: SerializeField] public Image cooldownFill { get; private set; }
 
     #region Cache
     List<ChargeUIUnit> chargeUnits = new();
