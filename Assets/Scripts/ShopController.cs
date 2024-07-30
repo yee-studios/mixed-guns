@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
-using DG.Tweening.Core;
 
 public class ShopController : Singleton<ShopController>
 {
