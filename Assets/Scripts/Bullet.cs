@@ -48,7 +48,10 @@ public class Bullet : MonoBehaviour
         Entity e = collision.GetComponentInParent<Entity>();
 
         if (!e) return;
-        e.Health -= Random.Range(gun.MinDamage, gun.MaxDamage);
+        float dmg = Random.Range(gun.MinDamage, gun.MaxDamage);
+        e.Health -= dmg;
+
+        SmallText.Appear(transform.position, Mathf.RoundToInt(dmg).ToString());
     }
 
     void Explode()

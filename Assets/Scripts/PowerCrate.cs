@@ -47,10 +47,12 @@ public class PowerCrate : MonoBehaviour
         {
             case PowerCrateType.FullVision:
                 player.fullVisionTimeRemaining = fullVisionTime;
+                ScreenAnnouncements.SpawnAnnouncement("FULL VISION!1!!");
                 break;
             
             case PowerCrateType.DoubleSpeed:
                 player.speedBoostTimeRemaining = doubleSpeedTime;
+                ScreenAnnouncements.SpawnAnnouncement("gotta go faaast!");
                 break;
         }
     }

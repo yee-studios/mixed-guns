@@ -1,4 +1,4 @@
-using Cinemachine;
+﻿using Cinemachine;
 using DG.Tweening;
 using DG.Tweening.Core;
 using System.Collections;
@@ -62,8 +62,8 @@ public class PlayerController : Singleton<PlayerController>
 
     [SerializeField] ParticleSystem fart;
 
-    [Header("Other")]
-    [SerializeField] GunController gun;
+    [field: Header("Other")]
+    [field: SerializeField] public GunController Gun { get; private set; }
 
     [SerializeField] float debugDeathTime = 0f;
     #endregion
@@ -101,6 +101,9 @@ public class PlayerController : Singleton<PlayerController>
             .OnComplete(() => {
                 entity.invencibility = false;
                 startAnimation = false;
+                ScreenAnnouncements.SpawnAnnouncement(
+                    $"Press {input.actions["shop"].GetBindingDisplayString()}"+
+                    "\nto open the shop and buy things!");
                 //EnemySpawner.Instance.enabled = true;
             });    
 
@@ -156,11 +159,11 @@ public class PlayerController : Singleton<PlayerController>
 
         HandleDashes();
 
-        if(gun != null)
+        if(Gun != null)
         {
-            if (input.actions["switchfiremode"].WasPressedThisFrame()) gun.SwitchFireMode();
+            if (input.actions["switchfiremode"].WasPressedThisFrame()) Gun.SwitchFireMode();
             bool trig = input.actions["shoot"].IsPressed();
-            if (gun.triggerStatus != trig) gun.UpdateTrigger(trig);
+            if (Gun.triggerStatus != trig) Gun.UpdateTrigger(trig);
         }
         
         speedBoost = speedBoostTimeRemaining > 0 && !speedBoost;
@@ -188,7 +191,7 @@ public class PlayerController : Singleton<PlayerController>
             return;
         }
 
-        if (fullVisionTweenInProgress.active) return;
+        if (fullVisionTweenInProgress != null && fullVisionTweenInProgress.active) return;
         fullVisionTweenInProgress = DOTween.To(() => surroundingLight.pointLightOuterRadius,
                 x => surroundingLight.pointLightOuterRadius = x, minLightOuter, 1f)
             .OnComplete(() => fullVision = false);

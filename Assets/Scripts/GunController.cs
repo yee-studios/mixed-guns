@@ -9,8 +9,18 @@ public class GunController : MonoBehaviour
     [SerializeField] Transform tip;
     [SerializeField] Bullet bulletPrefab;
     [SerializeField] float bulletSpeed = 1000f;
-    [SerializeField] FireMode fireMode = FireMode.Semi;
-    [SerializeField] BulletType bulletType = BulletType.Normal;
+    public FireMode fireMode = FireMode.Semi;
+    public FireMode FireMode
+    {
+        get { return fireMode; }
+        set
+        {
+            audioSource.PlayOneShot(AudioClipsManager.Instance.FireModeSwitch);
+            fireMode = value;
+        }
+    }
+
+    public BulletType bulletType = BulletType.Normal;
     public bool triggerStatus = false;
     AudioSource audioSource;
 
@@ -54,7 +64,6 @@ public class GunController : MonoBehaviour
 
     public void SwitchFireMode()
     {
-        audioSource.PlayOneShot(AudioClipsManager.Instance.FireModeSwitch);
         int f = (int)fireMode;
         f++;
         fireMode = (FireMode)f;
@@ -102,4 +111,4 @@ public class GunController : MonoBehaviour
     }
 }
 
-enum FireMode { Semi, Burst, Auto }
+public enum FireMode { Semi, Burst, Auto }

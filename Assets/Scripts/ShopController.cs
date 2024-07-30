@@ -3,6 +3,19 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
+using System.Collections.Generic;
+using System;
+using UnityEditorInternal.Profiling.Memory.Experimental;
+using Random = UnityEngine.Random;
+
+[Serializable]
+public struct ShopItemInfo
+{
+    [field: SerializeField] public string id { private set; get; }
+    [field: SerializeField] public string title { private set; get; }
+    [field: SerializeField] public string description { private set; get; }
+    [field: SerializeField] public int cost { private set; get; }
+}
 
 public class ShopController : Singleton<ShopController>
 {
@@ -12,6 +25,8 @@ public class ShopController : Singleton<ShopController>
     [SerializeField] int itemsCount = 10;
     [SerializeField] Button buyButton;
     [SerializeField] TextMeshProUGUI titleText;
+    [SerializeField] List<ShopItemInfo> items = new();
+    [SerializeField] List<ShopItem> shopItems = new();
 
     PlayerInput input;
     public bool shopOpen {private set; get;}
@@ -20,15 +35,61 @@ public class ShopController : Singleton<ShopController>
     {
         base.Awake();
         transform.localScale = Vector3.one;
-        for (int i = 0; i < itemsCount; i++)
+        for (int i = 0; i < items.Count; i++)
         {
             ShopItem newItem = Instantiate(PrefabHolder.Instance.ShopItemPrefab, itemsContainer);
+            shopItems.Add(newItem);
             newItem.Rect.anchoredPosition = new Vector3(0, -i * newItem.Rect.rect.height - offset * i, 0);
             itemsContainer.sizeDelta = new Vector2(0, itemsCount * newItem.Rect.rect.height + offset * itemsCount);
+
+            ShopItemInfo info = items[i];
+            newItem.Info = info;
+
+            newItem.onSelect.AddListener(() => Selected(newItem));
         }
+
+        UpdateItemButtons();
         titleText.rectTransform.anchoredPosition = new Vector3(0, 50f, 0);
         buyButton.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, -50f, 0);
         scrollRect.gameObject.SetActive(false);
+        buyButton.gameObject.SetActive(false);
+    }
+
+    void Selected(ShopItem item)
+    {
+        PlayerController player = PlayerController.Instance;
+        switch (item.Info.id) {
+            case "firemode":
+                if(player.Gun.FireMode == FireMode.Semi)
+                {
+                    player.Gun.FireMode = FireMode.Burst;
+                    item.UpdateInfo(50);
+                    ScreenAnnouncements.SpawnAnnouncement("Burst fire mode!");
+                } else if (player.Gun.FireMode == FireMode.Burst)
+                {
+                    player.Gun.FireMode = FireMode.Auto;
+                    item.UpdateInfo(-1);
+                    ScreenAnnouncements.SpawnAnnouncement("Automatic fire mode!");
+                }
+                break;
+            default:
+                break;
+        }
+        UpdateItemButtons();
+    }
+
+    void UpdateItemButtons() {
+        foreach(ShopItem item in shopItems)
+        {
+            int cost = item.cost;
+            /*
+            if (cost > 0) item.buttonText.text = cost.ToString();
+            else if (cost == 0) item.buttonText.text = "Free";
+            else item.buttonText.text = "";
+            */
+            item.buttonText.text = item.GetButtonText();
+            item.selectButton.interactable = cost >= 0 ? CoinsManager.Instance.Coins >= cost : false;
+        }
     }
 
     private void Start()
@@ -47,7 +108,9 @@ public class ShopController : Singleton<ShopController>
     float shopTime = 0.25f;
     void ToggleShop()
     {
+        UpdateItemButtons();
         shopOpen = !shopOpen;
+        itemsContainer.anchoredPosition = Vector3.zero;
         MusicController.Instance.ShopMusic(shopOpen);
         DOTween.To(() => Time.timeScale, x => Time.timeScale = x, shopOpen ? 0f : 1f, shopTime).SetUpdate(true);
         DOTween.To(() => titleText.rectTransform.anchoredPosition,

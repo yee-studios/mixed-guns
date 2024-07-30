@@ -14,6 +14,7 @@ public class MusicController : Singleton<MusicController>
     float mixAmount = 0f;
     [SerializeField] float fadeRatio = 10f;
     float volume = 1f;
+    Tween shopTween;
 
     protected override void Awake()
     {
@@ -36,7 +37,8 @@ public class MusicController : Singleton<MusicController>
         fullSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
         instSource.DOPitch(toggle ? 0f : 1f, 1f).SetUpdate(true);
         if (toggle) shopSource.Play();
-        Fade(shopSource, 1f, toggle ? 1f : 0f, toggle ? 0f : 1f).OnComplete(() => { if (!toggle) shopSource.Stop(); });
+        if (shopTween != null && shopTween.active) shopTween.Kill(false);
+        shopTween = Fade(shopSource, 1f, toggle ? 1f : 0f, toggle ? 0f : 1f).OnComplete(() => { if (!toggle) shopSource.Stop(); });
     }
 
     private void Update()
@@ -52,5 +54,5 @@ public class MusicController : Singleton<MusicController>
     }
 
     TweenerCore<float, float, FloatOptions> Fade(AudioSource source, float t = 1f, float vol = 1f, float startVol = 0f, Ease ease = Ease.InOutSine)
-        => source.DOFade(vol, t).SetEase(ease).ChangeStartValue(startVol).SetUpdate(true);
+        => source.DOFade(vol, t).SetEase(ease)/*.ChangeStartValue(startVol)*/.SetUpdate(true);
 }

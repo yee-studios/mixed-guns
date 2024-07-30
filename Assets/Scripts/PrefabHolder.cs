@@ -16,4 +16,6 @@ public class PrefabHolder : PersistentSingleton<PrefabHolder>
 
     [field: Header("UI")]
     [field: SerializeField] public ShopItem ShopItemPrefab { get; private set; }
+    [field: SerializeField] public ScreenAnnouncement ScreenAnnouncementPrefab { get; private set; }
+    [field: SerializeField] public SmallText SmallText { get; private set; }
 }

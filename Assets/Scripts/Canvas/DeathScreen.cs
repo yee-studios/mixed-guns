@@ -16,6 +16,9 @@ public class DeathScreen : Singleton<DeathScreen>
         title.enabled = false;
         button.gameObject.SetActive(false);
         button.onClick.AddListener(OnClick);
+        ButtonHoverEvents hoverEvents = button.GetComponent<ButtonHoverEvents>();
+        hoverEvents.onPointerEnter.AddListener(() => BreatheIn());
+        hoverEvents.onPointerExit.AddListener(() => BreatheOut());
     }
 
     public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn);
