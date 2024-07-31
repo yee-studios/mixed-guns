@@ -8,12 +8,14 @@ using UnityEngine.UI;
 public class DeathScreen : Singleton<DeathScreen>
 {
     [SerializeField] TextMeshProUGUI title;
+    [SerializeField] TextMeshProUGUI description;
     [SerializeField] Button button;
 
     protected override void Awake()
     {
         base.Awake();
         title.enabled = false;
+        description.enabled = false;
         button.gameObject.SetActive(false);
         button.onClick.AddListener(OnClick);
         ButtonHoverEvents hoverEvents = button.GetComponent<ButtonHoverEvents>();
@@ -21,8 +23,8 @@ public class DeathScreen : Singleton<DeathScreen>
         hoverEvents.onPointerExit.AddListener(() => BreatheOut());
     }
 
-    public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn, 1f, 0.5f);
-    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathOut, 1f, 0.5f);
+    public void BreatheIn() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathIn, 1f, 0.25f);
+    public void BreatheOut() => OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.BreathOut, 1f, 0.25f);
 
     void OnClick()
     {
@@ -47,6 +49,13 @@ public class DeathScreen : Singleton<DeathScreen>
         HealthBorders.Instance.Image.DOFade(0f, 1f);
 
         title.enabled = true;
+        int kills = PlayerController.Instance.kills;
+        if (kills > 0)
+        {
+            description.enabled = true;
+            description.text = $"You killed {kills} enemies!";
+            description.DOFade(1f, 3f).ChangeStartValue(new Color(0,0,0,0)).SetDelay(2f);
+        }
         button.gameObject.SetActive(true);
         button.interactable = false;
         gameObject.SetActive(true);
@@ -59,6 +68,6 @@ public class DeathScreen : Singleton<DeathScreen>
             .DOLocalMove(Vector3.up * -100f, 3f)
             .ChangeStartValue(Vector3.up * -500f)
             .SetEase(Ease.OutSine)
-            .OnComplete(() => { button.interactable = true; OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Swoosh); });
+            .OnComplete(() => { button.interactable = true; OneShotSoundsCreator.PlayOneShot(AudioClipsManager.Instance.Swoosh, 1f, 0.5f); });
     }
 }

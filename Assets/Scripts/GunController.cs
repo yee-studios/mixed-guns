@@ -25,6 +25,7 @@ public class GunController : MonoBehaviour
     AudioSource audioSource;
 
     public float fireRate = 0.25f;
+    public bool tripleShot;
     [SerializeField] int burstAmount = 3;
     [SerializeField] float rotationSmooth = 10f;
     [SerializeField] float lightExpansionWhenShooting = 1f;
@@ -93,10 +94,15 @@ public class GunController : MonoBehaviour
             x => PlayerController.Instance.surroundingLight.pointLightOuterRadius = x,
             pointLightOuterRadius += lightExpansionWhenShooting, 1);
         audioSource.PlayOneShot(shootSounds[Random.Range(0, shootSounds.Length-1)]);
-        Bullet b = Instantiate(bulletPrefab, tip.position, tip.rotation);
-        b.speed = bulletSpeed;
-        b.gun = this;
-        b.type = bulletType;
+
+        spawnBullet(tip.rotation);
+
+        if(tripleShot)
+        {
+            spawnBullet(Quaternion.Euler(tip.rotation.eulerAngles + new Vector3(0, 0, 15f)));
+            spawnBullet(Quaternion.Euler(tip.rotation.eulerAngles - new Vector3(0, 0, 15f)));
+        }
+
         if(fireMode == FireMode.Burst)
         {
             currentBurst++;
@@ -108,6 +114,14 @@ public class GunController : MonoBehaviour
             }
         }
         nextFire = Time.time + fireRate;
+    }
+    
+    void spawnBullet(Quaternion rotation)
+    {
+        Bullet bullet = Instantiate(bulletPrefab, tip.position, rotation);
+        bullet.speed = bulletSpeed;
+        bullet.gun = this;
+        bullet.type = bulletType;
     }
 }
 

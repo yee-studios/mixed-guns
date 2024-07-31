@@ -176,7 +176,18 @@ public class PlayerController : Singleton<PlayerController>
         {
             if (input.actions["switchfiremode"].WasPressedThisFrame() && availableBulletTypes.Count >= 2)
             {
-                Gun.bulletType = Gun.bulletType == BulletType.Explosive ? BulletType.Freezing : BulletType.Explosive;
+                switch (Gun.bulletType) {
+                    case BulletType.Explosive:
+                        Gun.bulletType = BulletType.Freezing;
+                        break;
+                    case BulletType.Freezing:
+                        Gun.bulletType = BulletType.Explosive;
+                        break;
+                    default:
+                        Gun.bulletType = BulletType.Explosive;
+                        break;
+                }
+                //Gun.bulletType = Gun.bulletType == BulletType.Explosive ? BulletType.Freezing : BulletType.Explosive;
                 SmallText.Appear(transform.position, $"Switched to {Gun.bulletType}", Color.white);
             }
             //#if UNITY_EDITOR

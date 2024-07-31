@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public enum BulletType
 {
@@ -37,17 +38,32 @@ public class Bullet : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (hit) return;
+        if ((LayerMask.GetMask("Bullet") & (1 << collision.gameObject.layer)) != 0) return;
         hit = true;
 
         Destroy(gameObject);
 
         Vector3 point = collision.ClosestPoint(transform.position);
         OneShotSoundsCreator.Instance?.BulletImpact(point);
-        if (collision.CompareTag("Enemy")) Instantiate(PrefabHolder.Instance.BloodParticles, point, Quaternion.FromToRotation(collision.transform.position, transform.position));
+        float dmg = Random.Range(gun.MinDamage, gun.MaxDamage);
+        if (collision.CompareTag("Enemy"))
+        {
+            Enemy enemy = collision.GetComponent<Enemy>();
+            if (type == BulletType.Explosive && enemy.type != EnemyType.Fire)
+            {
+                dmg += Random.Range(gun.MinDamage, gun.MaxDamage);
+                SmallText.Appear(transform.position, "Crit!", Color.red);
+            }
+            else if (type == BulletType.Freezing && enemy.type != EnemyType.Ice)
+            {
+                dmg += Random.Range(gun.MinDamage, gun.MaxDamage);
+                SmallText.Appear(transform.position, "Crit!", Color.cyan);
+            }
+            Instantiate(PrefabHolder.Instance.BloodParticles, point, Quaternion.FromToRotation(collision.transform.position, transform.position));
+        }
         Entity e = collision.GetComponentInParent<Entity>();
 
         if (!e) return;
-        float dmg = Random.Range(gun.MinDamage, gun.MaxDamage);
         e.Health -= dmg;
         if (e.Health <= 0 && type != BulletType.Normal) Explode();
     }

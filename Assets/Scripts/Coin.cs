@@ -1,4 +1,6 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Coin : MonoBehaviour
 {
@@ -7,12 +9,14 @@ public class Coin : MonoBehaviour
     AudioSource audioSource;
     bool grabbed = false;
     float r = 5f;
+    Light2D _light;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         audioSource = GetComponent<AudioSource>();
         body = transform.GetChild(0);
+        _light = GetComponentInChildren<Light2D>();
     }
 
     private void Update()
@@ -26,6 +30,7 @@ public class Coin : MonoBehaviour
     {
         if (grabbed) return;
         if (!collision.transform.GetComponentInParent<PlayerController>()) return;
+        DOTween.To(() => _light.intensity, x => _light.intensity = x, 0f, 1f);
         grabbed = true;
         audioSource.Play();
         rb.constraints = RigidbodyConstraints2D.None;

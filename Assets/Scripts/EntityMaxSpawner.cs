@@ -5,9 +5,10 @@ public class EntityMaxSpawner : MonoBehaviour
 {
     [SerializeField] GameObject entityPrefab;
     [SerializeField] float spawnRate = 5f;
-    [SerializeField] float spawnRateMinus = 0.25f;
+    [SerializeField] float spawnRateMultiplier = 0.25f;
     [SerializeField] int maxEntities = 1;
     [SerializeField] int maxEntitiesPlus = 1;
+    [SerializeField] int maxEntitiesClamp = 100;
     [SerializeField] List<GameObject> entities;
     [SerializeField] float r = 50f;
     [SerializeField] float lastSpawn = 0f;
@@ -25,8 +26,9 @@ public class EntityMaxSpawner : MonoBehaviour
         entity.GetComponent<Entity>().OnDied.AddListener(() =>
         {
             entities.Remove(entity);
-            spawnRate -= spawnRateMinus;
+            spawnRate *= spawnRateMultiplier;
             maxEntities += maxEntitiesPlus;
+            maxEntities = Mathf.Clamp(maxEntities, 0, maxEntitiesClamp);
         });
         entities.Add(entity);
     }

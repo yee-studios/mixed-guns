@@ -21,7 +21,6 @@ public class ShopController : Singleton<ShopController>
     [SerializeField] float offset = 10f;
     [SerializeField] RectTransform itemsContainer;
     [SerializeField] ScrollRect scrollRect;
-    [SerializeField] int itemsCount = 10;
     [SerializeField] Button buyButton;
     [SerializeField] TextMeshProUGUI titleText;
     [SerializeField] List<ShopItemInfo> items = new();
@@ -39,7 +38,7 @@ public class ShopController : Singleton<ShopController>
             ShopItem newItem = Instantiate(PrefabHolder.Instance.ShopItemPrefab, itemsContainer);
             shopItems.Add(newItem);
             newItem.Rect.anchoredPosition = new Vector3(0, -i * newItem.Rect.rect.height - offset * i, 0);
-            itemsContainer.sizeDelta = new Vector2(0, itemsCount * newItem.Rect.rect.height + offset * itemsCount);
+            itemsContainer.sizeDelta = new Vector2(0, items.Count * newItem.Rect.rect.height + offset * items.Count);
 
             ShopItemInfo info = items[i];
             newItem.info = info;
@@ -93,6 +92,11 @@ public class ShopController : Singleton<ShopController>
                 if (player.availableBulletTypes.Count >= 2)
                     text += $"\nPress {input.actions["switchfiremode"].GetBindingDisplayString()} to switch between bullet types!";
                 ScreenAnnouncements.SpawnAnnouncement(text);
+                item.info.cost = -1;
+                item.UpdateInfo();
+                break;
+            case "tripleshot":
+                player.Gun.tripleShot = true;
                 item.info.cost = -1;
                 item.UpdateInfo();
                 break;

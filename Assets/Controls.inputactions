@@ -184,17 +184,6 @@
                 },
                 {
                     "name": "",
-                    "id": "e9680809-b834-41ee-8518-84274c22b24b",
-                    "path": "<Gamepad>/buttonNorth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwitchFireMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "91ffc8a2-78e5-4400-af81-6aff8b646a35",
                     "path": "<Keyboard>/b",
                     "interactions": "",
